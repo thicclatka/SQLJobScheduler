@@ -1,0 +1,71 @@
+#############################################
+# Export Common Paths
+#############################################
+export ENVSDRIVE="/mnt/EnvsDrive"
+export ZSH="$ENVSDRIVE/zsh"
+export SERVPATH="$ENVSDRIVE/scripts_dev/SQLJobScheduler/ServerService"
+export ANAC="${ANAC:-$ENVSDRIVE/anaconda3}"
+
+#############################################
+# ZSH History settings
+#############################################
+export HISTFILE="$SERVPATH/zshHist4jobrunner"
+HISTSIZE=10000
+SAVEHIST=10000
+HISTDUP=erase
+setopt appendhistory
+setopt sharehistory
+setopt incappendhistory
+setopt hist_ignore_all_dups
+setopt hist_save_no_dups
+setopt hist_ignore_dups
+setopt hist_find_no_dups
+
+#############################################
+# PATH export
+#############################################
+
+# Exporting Paths
+export PATH="$PATH:$ENVSDRIVE/Applications/cargo/bin"
+export PATH="$PATH:$HOME/.local/bin/"
+export PATH="/usr/local/cuda-12.8/bin${PATH:+:${PATH}}"
+export CUDA_HOME="/usr/local/cuda-12.8"
+export LD_LIBRARY_PATH="/usr/local/cuda-12.8/lib64:$LD_LIBRARY_PATH"
+
+# for uv (python env management outside of anaconda)
+source $ENVSDRIVE/Applications/uv_py/env
+export UV_PYTHON_INSTALL_DIR="$ENVSDRIVE/python_lib"
+export UV_CACHE_DIR="$ENVSDRIVE/Applications/uv_py/cache"
+export UV_CONFIG_FILE="$ENVSDRIVE/Applications/uv_py/uv.toml"
+
+#############################################
+# Aliases
+#############################################
+
+# source aliases
+source $ZSH/aliases
+
+#############################################
+# Terminal Prompt/startup
+#############################################
+# source <(fzf --zsh)
+# eval "$(zoxide init --cmd cd zsh)"
+# eval "$(starship init zsh)"
+# eval "$(uv generate-shell-completion zsh)"
+# eval "$(uvx --generate-shell-completion zsh)"
+
+#############################################
+# Anaconda setup (conda)
+#############################################
+
+__conda_setup="$('${ANAC}/bin/conda' 'shell.zsh' 'hook' 2>/dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "${ANAC}/etc/profile.d/conda.sh" ]; then
+        . "${ANAC}/etc/profile.d/conda.sh"
+    else
+        export PATH="${ANAC}/bin:$PATH"
+    fi
+fi
+unset __conda_setup

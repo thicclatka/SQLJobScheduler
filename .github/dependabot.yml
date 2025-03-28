@@ -1,0 +1,17 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 99999
+    target-branch: "dev"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    reviewers:
+      - "thicclatka"
+    assignees:
+      - "thicclatka"
+    labels:
+      - "dependencies"
