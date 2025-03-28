@@ -74,17 +74,19 @@ jobs:
         echo "OS info (uname -a):"
         uname -a
 
-    - name: Install dependencies (UNIX)
+    - name: Install uv (UNIX)
       if: startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'ubuntu')
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        uv pip install -r requirements.txt
 
-    - name: Install dependencies (Windows)
+    - name: Install uv (Windows)
       if: startsWith(matrix.os, 'windows')
       run: |
         powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-        uv pip install -r requirements.txt
+    
+    - name: Install dependencies
+      run: |
+        uv pip install --system -r requirements.txt
 
     - name: Install base package
       run: |
