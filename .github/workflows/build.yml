@@ -90,11 +90,11 @@ jobs:
 
     - name: Install base package
       run: |
-        pip install -v -e .
+        uv pip install -v -e .
 
     - name: Check installed packages
       run: |
-        pip list
+        uv pip list
       
     - name: Test installation
       run: |
