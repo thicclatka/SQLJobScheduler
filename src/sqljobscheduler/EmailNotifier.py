@@ -175,9 +175,13 @@ class EmailNotifier:
         return body
 
     @staticmethod
+<<<<<<< HEAD
     def generate_email_credentials_json(
         server_address: str | None = None, dashboard_url: str | None = None
     ):
+=======
+    def generate_email_credentials_json():
+>>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)
         """Generate email credentials JSON file"""
 
         def check_bewteen_colon_slash(url: str) -> bool:
@@ -208,27 +212,46 @@ class EmailNotifier:
                 break
 
         while True:
+<<<<<<< HEAD
             email_password = getpass.getpass(
                 "Enter your email app password (THIS IS NOT YOUR EMAIL PASSWORD): "
             )
+=======
+            email_password = getpass.getpass("Enter your email password: ")
+>>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)
             email_password = email_password.replace(" ", "")
             if len(email_password) == 16:
                 break
             else:
+<<<<<<< HEAD
                 print("App password must be 16 characters long. Please try again.")
 
         if server_address is None:
             server_address = input(
                 "Enter your server address (Hit Enter for default which will leave it blank): "
             )
+=======
+                print("Password must be 16 characters long. Please try again.")
+
+        server_address = input(
+            "Enter your server address (Hit Enter for default which will leave it blank): "
+        )
+>>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)
 
         if server_address == "":
             server_address = None
 
+<<<<<<< HEAD
         if server_address is not None and dashboard_url is None:
             while True:
                 dashboard_url = input(
                     f"Enter your dashboard URL (Hit Enter for default which will leave it blank. For proper entry, enter url as: {server_address}:PORT/APP_NAME).\nNote: This is for a streamlit app: "
+=======
+        if server_address is not None:
+            while True:
+                dashboard_url = input(
+                    f"Enter your dashboard URL (Hit Enter for default which will leave it blank. For proper enter url as: {server_address}:PORT/APP_NAME).\nNote: This is for a streamlit app: "
+>>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)
                 )
                 if dashboard_url == "":
                     dashboard_url = None
@@ -252,9 +275,12 @@ class EmailNotifier:
                 "dashboard_url": dashboard_url,
             }
         )
+<<<<<<< HEAD
         print(
             f"Email credentials saved to {email_credentials_file}.\n Generation complete."
         )
+=======
+>>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)
 
 
 class CredentialsManager:
@@ -315,3 +341,7 @@ class CredentialsManager:
 
 if __name__ == "__main__":
     EmailNotifier.generate_email_credentials_json()
+<<<<<<< HEAD
+=======
+    print("Email credentials generated successfully")
+>>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)

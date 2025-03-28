@@ -30,9 +30,14 @@ theme:
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
+<<<<<<< HEAD
   favicon: images/gpuJobs.png
   logo: images/gpuJobs.png
   icon:
+=======
+  icon:
+    logo: material/cloud-clock
+>>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)
     repo: fontawesome/brands/github
 
 repo_url: https://github.com/thicclatka/SQLJobScheduler
@@ -40,6 +45,7 @@ repo_name: SQLJobScheduler
 
 nav:
   - Home: index.md
+<<<<<<< HEAD
   - Installation: installation.md
 
 markdown_extensions:
@@ -47,6 +53,11 @@ markdown_extensions:
   - def_list
   - pymdownx.tasklist:
       custom_checkbox: true
+=======
+
+markdown_extensions:
+  - tables
+>>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)
   - pymdownx.highlight
   - pymdownx.inlinehilite
   - pymdownx.snippets
@@ -58,4 +69,7 @@ markdown_extensions:
   - attr_list
   - md_in_html
   - pymdownx.emoji
+<<<<<<< HEAD
   - pymdownx.tilde
+=======
+>>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)

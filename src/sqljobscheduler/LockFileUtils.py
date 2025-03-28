@@ -1,10 +1,16 @@
 from pathlib import Path
 from datetime import datetime
+<<<<<<< HEAD
 import getpass
 import os
 import time
 from typing import Literal, Optional, Dict
 import json
+=======
+from typing import Literal, Optional, Dict
+import json
+import time
+>>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)
 
 GPU_LOCK_FILE = "/tmp/gpu_lock.json"
 
@@ -35,7 +41,11 @@ def create_gpu_lock_file(
     user: str,
     script: str,
     pid: int,
+<<<<<<< HEAD
     ctype: Literal["cli", "sql"] = "cli",
+=======
+    ctype: Literal["cli", "sql"],
+>>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)
     job_id: Optional[str] = None,
 ) -> bool:
     if check_gpu_lock_file():

@@ -6,6 +6,7 @@ A SQL-based job scheduler system designed to manage GPU-intensive Python jobs fo
 
 - Job Queue Management: Uses SQLite to maintain a queue of Python jobs with their execution parameters, status, and metadata.
 - Job Runner Service: A daemon process that:
+<<<<<<< HEAD
     - Runs jobs sequentially using tmux sessions
     - Handles GPU resource allocation
     - Provides email notifications for job status
@@ -15,11 +16,26 @@ A SQL-based job scheduler system designed to manage GPU-intensive Python jobs fo
     - Job queue with filtering options
     - Real-time job output
     - GPU usage timeline
+=======
+  - Runs jobs sequentially using tmux sessions
+  - Handles GPU resource allocation
+  - Provides email notifications for job status
+  - Manages conda/Python environments for different jobs
+- Web Dashboard: A Streamlit-based interface (`JobLister_streamlit.py`) that displays:
+  - Current GPU status
+  - Job queue with filtering options
+  - Real-time job output
+  - GPU usage timeline
+>>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)
 - System Integration: Runs as a systemd service on Linux, with proper user permissions and environment management
 
 ## Quick Navigation
 
+<<<<<<< HEAD
 - [Installation](01_installation.md)
 - [API](02_api_usage.md)
 - [JobRunner](03_jobrunner.md)
 - [Dashboard](04_joblister.md)
+=======
+NEED TO FILL
+>>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)
