@@ -90,11 +90,11 @@ jobs:
 
     - name: Install base package
       run: |
-        uv pip install -v -e .
+        uv pip install --system -v -e .
 
     - name: Check installed packages
       run: |
-        uv pip list
+        uv pip list --system
       
     - name: Test installation
       run: |
