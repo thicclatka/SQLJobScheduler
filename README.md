@@ -17,5 +17,5 @@ Documentation: [https://thicclatka.github.io/SQLJobScheduler/](https://thicclatk
 
 ## TODO
 
-[ ] Update README & documentation
-[ ] Setup scripts
+- [ ] Update README & documentation
+- [ ] Setup scripts
