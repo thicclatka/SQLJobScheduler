@@ -1,4 +1,17 @@
+"""
+SQL Job Scheduler - A system for managing GPU-intensive Python jobs
+"""
+
+import tomli
 import os
+
+try:
+    with open("pyproject.toml", "rb") as f:
+        pyproject = tomli.load(f)
+        __version__ = pyproject["project"]["version"]
+except Exception:
+    __version__ = "unknown"
+
 
 __all__ = ["LockFileUtils", "JobManager", "JobLister", "EmailNotifier", "JobRunner"]
 

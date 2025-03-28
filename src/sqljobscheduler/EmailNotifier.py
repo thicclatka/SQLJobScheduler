@@ -247,6 +247,9 @@ class EmailNotifier:
                 "dashboard_url": dashboard_url,
             }
         )
+        print(
+            f"Email credentials saved to {email_credentials_file}.\n Generation complete."
+        )
 
 
 class CredentialsManager:
@@ -307,4 +310,3 @@ class CredentialsManager:
 
 if __name__ == "__main__":
     EmailNotifier.generate_email_credentials_json()
-    print("Email credentials generated successfully")
