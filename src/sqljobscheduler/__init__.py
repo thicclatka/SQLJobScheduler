@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 """
 SQL Job Scheduler - A system for managing GPU-intensive Python jobs
 """
@@ -14,10 +13,6 @@ except Exception:
     __version__ = "unknown"
 
 
-=======
-import os
-
->>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)
 __all__ = ["LockFileUtils", "JobManager", "JobLister", "EmailNotifier", "JobRunner"]
 
 modules_import_as_is = []
