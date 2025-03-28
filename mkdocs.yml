@@ -30,8 +30,9 @@ theme:
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
+  favicon: images/gpuJobs.png
+  logo: images/gpuJobs.png
   icon:
-    logo: material/cloud-clock
     repo: fontawesome/brands/github
 
 repo_url: https://github.com/thicclatka/SQLJobScheduler
@@ -39,9 +40,13 @@ repo_name: SQLJobScheduler
 
 nav:
   - Home: index.md
+  - Installation: installation.md
 
 markdown_extensions:
   - tables
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
   - pymdownx.highlight
   - pymdownx.inlinehilite
   - pymdownx.snippets
@@ -53,3 +58,4 @@ markdown_extensions:
   - attr_list
   - md_in_html
   - pymdownx.emoji
+  - pymdownx.tilde

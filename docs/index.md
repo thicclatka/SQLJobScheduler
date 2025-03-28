@@ -19,4 +19,8 @@ A SQL-based job scheduler system designed to manage GPU-intensive Python jobs fo
 
 ## Quick Navigation
 
-NEED TO FILL
+- [Installation](01_installation.md)
+
+TODO:
+
+- [ ] add more details
