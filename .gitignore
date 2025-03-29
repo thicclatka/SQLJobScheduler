@@ -6,12 +6,9 @@ queueDB/
 .dist/
 *.service
 .old/
-<<<<<<< HEAD
 *.sh
 shell_scripts/
 services/
-=======
->>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)
 
 *.DS_Store
 *.vscode/
@@ -238,4 +235,3 @@ Temporary Items
 
 ### macOS Patch ###
 # iCloud generated files
-*.icloud
