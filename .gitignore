@@ -6,6 +6,7 @@ queueDB/
 .dist/
 *.service
 .old/
+*.sh
 
 *.DS_Store
 *.vscode/
