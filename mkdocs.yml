@@ -1,0 +1,61 @@
+site_name: SQL Job Scheduler
+site_description: A job scheduler to run GPU-accelerated Python scripts on a server with a SQL database.
+theme:
+  name: material
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: cyan
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: cyan
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  favicon: images/gpuJobs.png
+  logo: images/gpuJobs.png
+  icon:
+    repo: fontawesome/brands/github
+
+repo_url: https://github.com/thicclatka/SQLJobScheduler
+repo_name: SQLJobScheduler
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+
+markdown_extensions:
+  - tables
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - pymdownx.emoji
+  - pymdownx.tilde

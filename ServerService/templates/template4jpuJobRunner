@@ -1,0 +1,35 @@
+[Unit]
+Description=SQL Job Runner Service for GPU heavy jobs
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User={user}
+Group={group}
+
+# Start the job runner
+ExecStart={scripts_dir}/ServerService/shell_scripts/start_jobrunner.sh
+
+# Working directory
+WorkingDirectory={scripts_dir}
+
+# Restart the service
+Restart=always
+RestartSec=3
+
+# Limit the number of files
+LimitNOFILE=65535
+KillMode=control-group
+KillSignal=SIGINT
+SendSIGKILL=yes
+TimeoutStopSec=30
+
+# Environment variables
+Environment=HOME=/home/{user}
+Environment=USER={user}
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
+

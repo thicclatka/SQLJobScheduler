@@ -1,0 +1,101 @@
+name: build
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'description'     
+        required: false                     
+        default: '' 
+        
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.os }}, Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-22.04, windows-latest, macos-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Check specs of the machine -- Linux
+      if: startsWith(matrix.os, 'ubuntu')
+      run: |
+        ## check cpu, memory, disk, etc.
+        ## print the command inputs to the workflow
+        echo "CPU info (lscpu):"
+        lscpu
+        echo "Memory info (free -h):"
+        free -h
+        echo "Disk info (df -h):"
+        df -h
+        echo "Network info (ip a):"
+        ip a
+        echo "OS info (uname -a):"
+        uname -a
+
+    - name: Check specs of the machine -- Windows
+      if: startsWith(matrix.os, 'windows')
+      run: |
+        ## check cpu, memory, disk, etc.
+        ## just do a generic check on system info
+        ## print the command inputs to the workflow
+        echo "System info (systeminfo):"
+        systeminfo
+
+    - name: Check specs of the machine -- MacOS
+      if: startsWith(matrix.os, 'macos')
+      run: |
+        ## check cpu, memory, disk, etc.
+        ## print the command inputs to the workflow
+        echo "CPU info (sysctl -n machdep.cpu.brand_string):"
+        sysctl -n machdep.cpu.brand_string
+        echo "Memory info (sysctl -n hw.memsize):"
+        sysctl -n hw.memsize
+        echo "Disk info (df -h):"
+        df -h
+        echo "OS info (uname -a):"
+        uname -a
+
+    - name: Install uv (UNIX)
+      if: startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'ubuntu')
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+
+    - name: Install uv (Windows)
+      if: startsWith(matrix.os, 'windows')
+      run: |
+        powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+    
+    - name: Install dependencies
+      run: |
+        uv pip install --system -r requirements.txt
+
+    - name: Install base package
+      run: |
+        uv pip install --system -v -e .
+
+    - name: Check installed packages
+      run: |
+        uv pip list --system
+      
+    - name: Test installation
+      run: |
+        python -c "import sqljobscheduler; print(f'sqljobscheduler version: {sqljobscheduler.__version__}')"

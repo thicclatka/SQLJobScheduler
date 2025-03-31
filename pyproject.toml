@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel", "build"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sqljobscheduler"
+version = "0.1.1"
+description = "SQL based job scheduler to handle GPU jobs for Hen Lab Server"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "altair",
+  "cryptography",
+  "easygui",
+  "libtmux",
+  "pandas",
+  "psutil",
+  "streamlit",
+  "tabulate",
+  "tomli",
+]
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
