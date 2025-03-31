@@ -6,7 +6,6 @@ queueDB/
 .dist/
 *.service
 .old/
-*.sh
 shell_scripts/
 services/
 
@@ -235,3 +234,4 @@ Temporary Items
 
 ### macOS Patch ###
 # iCloud generated files
+*.icloud

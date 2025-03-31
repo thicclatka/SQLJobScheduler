@@ -1,5 +1,3 @@
-import os
-import shutil
 import subprocess
 from pathlib import Path
 import pwd
@@ -9,6 +7,7 @@ from sqljobscheduler.EmailNotifier import EmailNotifier
 
 
 def print_bar() -> None:
+    """Print a bar of 100 '#' characters."""
     print("#" * 100)
 
 
@@ -223,15 +222,6 @@ def main():
     print("Welcome to the SQLJobScheduler setup script.")
     print_bar()
 
-    # print(
-    #     "First, we need to generate the email credentials to enable email notifications."
-    # )
-    # print(
-    #     "Works best with gmail. Please refer to the documentation for more details to obtain app password: https://support.google.com/mail/answer/185833?hl=en\n"
-    # )
-    # EmailNotifier.generate_email_credentials_json()
-    # print_bar()
-
     # Setup service files
     print("First we need some information to setup the service files.")
     (
@@ -243,7 +233,7 @@ def main():
     ) = setup_service_files()
 
     print(
-        "Now we need to generate the email credentials to enable email notifications."
+        "\nNow we need to generate the email credentials to enable email notifications."
     )
     print(
         "Works best with gmail. Please refer to the documentation for more details to obtain app password: https://support.google.com/mail/answer/185833?hl=en\n"
