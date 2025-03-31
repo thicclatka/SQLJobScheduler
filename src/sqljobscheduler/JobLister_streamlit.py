@@ -192,11 +192,7 @@ def set_title(LOGO_IMAGE: str, TITLE: str):
 
 def main():
     root_dir = Path(__file__).parent.parent.parent
-<<<<<<< HEAD
     img_dir = root_dir / "docs/images"
-=======
-    img_dir = root_dir / "docs/assets"
->>>>>>> 1cac9b6 (Initial commit: SQL Job Scheduler setup)
     png_path = img_dir / "gpuJobs.png"
     icon_path = img_dir / "gpuJobs.ico"
 
