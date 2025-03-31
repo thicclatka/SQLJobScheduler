@@ -14,8 +14,3 @@ Documentation: [https://thicclatka.github.io/SQLJobScheduler/](https://thicclatk
 - SQL-based job scheduling and management
 - Queue-based job processing
 - Server service for job execution
-
-## TODO
-
-- [ ] Update README & documentation
-- [ ] Setup scripts
