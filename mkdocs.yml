@@ -40,7 +40,10 @@ repo_name: SQLJobScheduler
 
 nav:
   - Home: index.md
-  - Installation: installation.md
+  - Installation: 01_installation.md
+  - API: 02_api_usage.md
+  - JobRunner: 03_jobrunner.md
+  - Dashboard: 04_joblister.md
 
 markdown_extensions:
   - tables
