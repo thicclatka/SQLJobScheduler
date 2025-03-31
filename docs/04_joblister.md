@@ -48,6 +48,7 @@ The dashboard provides real-time output display for currently running jobs:
 - Automatically captures and displays output from the running job's tmux session
 - Updates in real-time as the dashboard refreshes
 - Shows complete terminal output including errors and progress
+- Source of progress is a captured pane from the tmux session stored in `logs/tmux4wa`
 
 #### Job Runner Status
 
