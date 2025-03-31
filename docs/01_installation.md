@@ -1,6 +1,6 @@
 # Installation Guide
 
-Can technically work with Windows, Mac, or Linux, but best to use with an Ubuntu-based OS with systemd and a NVIDIA GPU.
+Can technically work as a library on Windows, Mac, or Linux. If you want to use as a standalone app, best to use with an Debian-based OS with systemd and a NVIDIA GPU.
 
 ## Prerequisites
 
@@ -8,7 +8,7 @@ Can technically work with Windows, Mac, or Linux, but best to use with an Ubuntu
 - [TMUX](https://github.com/tmux/tmux/wiki) - For managing terminal sessions
 - NVIDIA GPU (recommended for GPU-accelerated jobs)
 - Systemd (for Linux service management)
-- Git
+- Gmail account (to enable email notifications)
 
 ## Installation
 
@@ -29,6 +29,9 @@ conda create -n ENV_NAME python=3.12
 conda activate ENV_NAME
 pip install .
 
+# or installing as a library
+# activate environment, as long as python version >= 3.9
+pip install .
 ```
 
 ## Setup
