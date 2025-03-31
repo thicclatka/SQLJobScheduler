@@ -1,4 +1,4 @@
-# <img src="images/gpuJobs.png" alt="GPU Jobs Icon" width="32" height="32" style="vertical-align: middle;"> JobLister Dashboard Guide
+# JobLister Dashboard Guide
 
 The JobLister dashboard is a Streamlit-based web interface that provides real-time monitoring and management of GPU jobs.
 
