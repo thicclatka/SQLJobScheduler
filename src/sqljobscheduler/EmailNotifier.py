@@ -189,10 +189,6 @@ class EmailNotifier:
 
         credentials_manager = CredentialsManager()
 
-        root_dir = Path(__file__).parent.parent.parent
-        email_credentials_file = root_dir / "Credentials" / "email.json"
-        email_credentials_file.parent.mkdir(parents=True, exist_ok=True)
-
         print(
             "Utility to generate email credentials for SQL Job Scheduler email notifier"
         )
@@ -253,14 +249,15 @@ class EmailNotifier:
             }
         )
         print(
-            f"Email credentials saved to {email_credentials_file}.\n Generation complete."
+            f"Email credentials saved to {credentials_manager.credentials_file}.\nGeneration complete."
         )
 
 
 class CredentialsManager:
     def __init__(self):
-        self.root_dir = Path(__file__).parent.parent.parent
-        self.credentials_dir = self.root_dir / "Credentials"
+        home_dir = Path.home()
+        self.credentials_dir = home_dir / ".sqljobscheduler" / "Credentials"
+        self.credentials_dir.mkdir(parents=True, exist_ok=True)
         self.username = getpass.getuser()
 
         # Generate consistent user code
