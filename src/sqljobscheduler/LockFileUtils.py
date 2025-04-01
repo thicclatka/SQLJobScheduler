@@ -1,12 +1,12 @@
 from pathlib import Path
 from datetime import datetime
-import getpass
 import os
 import time
 from typing import Literal, Optional, Dict
 import json
+import tempfile
 
-GPU_LOCK_FILE = "/tmp/gpu_lock.json"
+GPU_LOCK_FILE = Path(tempfile.gettempdir()) / "gpu_lock.json"
 
 
 def check_gpu_lock_file() -> bool:

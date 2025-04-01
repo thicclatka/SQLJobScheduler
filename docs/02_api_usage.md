@@ -54,7 +54,11 @@ notifier.notify_job_failed()
 
 ## GPU Management
 
-SQLJobScheduler provides GPU locking functionality to prevent multiple jobs from using the same GPU simultaneously. This is implemented using lock files.
+SQLJobScheduler provides GPU locking functionality to prevent multiple jobs from using the same GPU simultaneously. This is implemented using lock files, which are stored in the system's temporary directory:
+
+- Linux/Unix: `/tmp/gpu_lock.json`
+- Windows: `C:\Users\<username>\AppData\Local\Temp\gpu_lock.json`
+- macOS: `/var/folders/.../gpu_lock.json`
 
 ### Basic GPU Lock Usage
 
