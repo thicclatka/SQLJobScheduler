@@ -6,6 +6,7 @@ from pathlib import Path
 from libtmux import Server
 from datetime import datetime
 from datetime import timedelta
+from typing import Optional
 from sqljobscheduler import JobManager
 from sqljobscheduler import LockFileUtils
 from sqljobscheduler import EmailNotifier
@@ -104,7 +105,9 @@ class JobRunner:
             self._init_stats()
             self._setup_logging()
 
-    def run_job(self, job):
+    def run_job(
+        self, job: JobManager.Job
+    ) -> tuple[JobManager.JobStatus, Optional[str]]:
         """Run job in a tmux session and wait for completion"""
         # ZSHRC = str(self.root_dir / "ServerService" / "zshrc4jobrunner")
         # zsh_setup = f"exec zsh -f && source {ZSHRC} && clear"
@@ -213,6 +216,8 @@ class JobRunner:
                     pid=int(self.pid),
                     error=f"Job failed. See tmux log: {tmux_log_file}",
                 )
+                job_status = JobManager.JobStatus.FAILED
+                error_msg = f"Job failed. See tmux log: {tmux_log_file}"
             else:
                 self.stats["completed"] += 1
                 logging.info(f"Job {job.id} completed successfully")
@@ -222,16 +227,23 @@ class JobRunner:
                     script=job.programPath,
                     pid=int(self.pid),
                 )
+                job_status = JobManager.JobStatus.COMPLETED
+                error_msg = None
 
         except Exception as e:
             logging.error(
+                f"Error in handling wrapper for tmux processing for job {job.id}: {e}"
+            )
+            job_status = JobManager.JobStatus.FAILED
+            error_msg = (
                 f"Error in handling wrapper for tmux processing for job {job.id}: {e}"
             )
 
         finally:
             self.no_job_count = 0
             LockFileUtils.remove_gpu_lock_file()
-            logging.info(f"Removed GPU lock file")
+            logging.info("Removed GPU lock file")
+            return job_status, error_msg
 
     def run_pending_jobs(self) -> None:
         """Process all pending jobs"""
@@ -257,10 +269,11 @@ class JobRunner:
                     logging.info(f"Parameters: {job.parameters}")
 
                     self.queue.update_job_status(job.id, JobManager.JobStatus.RUNNING)
-                    self.run_job(job)
-                    self.queue.update_job_status(job.id, JobManager.JobStatus.COMPLETED)
+                    job_status, error_msg = self.run_job(job)
+                    self.queue.update_job_status(job.id, job_status, error_msg)
 
-                    logging.info(f"Completed job {job.id}")
+                    string_job_note = f"Job {job.id} {job_status.value}"
+                    logging.info(string_job_note)
 
                 except Exception as e:
                     error_msg = f"Error processing job {job.id}: {str(e)}"
