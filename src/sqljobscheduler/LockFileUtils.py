@@ -57,28 +57,36 @@ def create_gpu_lock_file(
     return True
 
 
-def get_current_gpu_job() -> Optional[Dict]:
-    """Get information about currently running GPU job"""
+def get_current_gpu_job(verbose: bool = False) -> Optional[Dict]:
+    """Get information about currently running GPU job
+    Args:
+        verbose (bool): Whether to print detailed information about the current job
+    Returns:
+        Optional[Dict]: Information about the current GPU job if one is running, None otherwise
+    """
     if not check_gpu_lock_file():
-        print("No GPU job currently running")
+        if verbose:
+            print("No GPU job currently running")
         return None
 
     try:
         with open(GPU_LOCK_FILE, "r") as f:
             lock_info = json.load(f)
 
-        print("\nCurrent GPU Job:")
-        print(f"Time started: {lock_info['time started']}")
-        print(f"User: {lock_info['user']}")
-        print(f"Script: {lock_info['script']}")
-        print(f"PID: {lock_info['pid']}")
-        print(f"Type: {lock_info['ctype']}")
-        if lock_info.get("job_id"):
-            print(f"Job ID: {lock_info['job_id']}")
+        if verbose:
+            print("\nCurrent GPU Job:")
+            print(f"Time started: {lock_info['time started']}")
+            print(f"User: {lock_info['user']}")
+            print(f"Script: {lock_info['script']}")
+            print(f"PID: {lock_info['pid']}")
+            print(f"Type: {lock_info['ctype']}")
+            if lock_info.get("job_id"):
+                print(f"Job ID: {lock_info['job_id']}")
 
         return lock_info
     except Exception as e:
-        print(f"Error reading GPU lock file: {e}")
+        if verbose:
+            print(f"Error reading GPU lock file: {e}")
         return None
 
 
@@ -97,7 +105,7 @@ def lock_file_argparser():
 
 
 def main():
-    print(get_current_gpu_job())
+    print(get_current_gpu_job(verbose=True))
 
 
 if __name__ == "__main__":
