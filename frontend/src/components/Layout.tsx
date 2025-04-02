@@ -213,8 +213,7 @@ export const Layout = ({ onToggleColorMode }: LayoutProps) => {
 
   // Fetch data with appropriate refetch intervals
   const { data: gpuStatus, isLoading: isLoadingGPU, dataUpdatedAt: gpuStatusUpdatedAt } = useData<GPUStatusType>('gpu-status', { 
-    status: 'available',
-    last_updated: new Date().toISOString()
+    status: 'available'
   }, REFETCH_INTERVAL.FAST);
   const { data: jobs = [], isLoading: isLoadingJobs, dataUpdatedAt: jobsUpdatedAt } = useData<Job[]>('jobs', []);
   const { data: jobRunnerLog, isLoading: isLoadingLog } = useData<JobRunnerLogType>('job-runner-log', { content: '' });

@@ -8,7 +8,6 @@ interface GPUStatusProps {
 
 export const GPUStatus = ({ status }: GPUStatusProps) => {
   const isInUse = status.status === 'in_use';
-  const lastUpdated = new Date(status.last_updated).toLocaleTimeString();
 
   return (
     <Card sx={{ mb: 3 }}>
@@ -16,9 +15,6 @@ export const GPUStatus = ({ status }: GPUStatusProps) => {
         <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
           <Typography variant="h6" component="div" sx={{ fontSize: '1.1rem' }}>
             Current GPU Job Details
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            Last updated: {lastUpdated}
           </Typography>
         </Box>
         
