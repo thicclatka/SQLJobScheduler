@@ -1,10 +1,8 @@
 import os
-import base64
 import subprocess
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
-import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
