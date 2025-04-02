@@ -143,8 +143,9 @@ async def get_current_job_output() -> dict:
                 current_job_log.write_text(result.stdout)
                 return {
                     "job_id": lock_info["job_id"],
-                    "output": read_output_file(current_job_log),
+                    "content": read_output_file(current_job_log),
                     "type": "sql",
+                    "error": None,
                 }
             except Exception as e:
                 return {"error": f"Failed to capture tmux output: {e}", "type": "sql"}
