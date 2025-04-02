@@ -11,9 +11,9 @@ import {
   Paper,
   Chip,
   Box,
-} from '@mui/material';
-import { Job } from '../types';
-import { formatDate, getStatusColor } from '../utils/format';
+} from "@mui/material";
+import { Job } from "../types";
+import { formatDate, getStatusColor } from "../utils/text_formatting";
 
 interface JobsTableProps {
   jobs: Job[];
@@ -23,18 +23,33 @@ export const JobsTable = ({ jobs }: JobsTableProps) => {
   return (
     <Card sx={{ mb: 3 }}>
       <CardContent>
-        <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          mb={2}
+        >
           <Typography variant="h6" component="div">
             Jobs Queue
           </Typography>
         </Box>
-        
+
         {jobs.length === 0 ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight={200}>
-            <Typography color="text.secondary">No pending jobs in queue</Typography>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight={200}
+          >
+            <Typography color="text.secondary">
+              No pending jobs in queue
+            </Typography>
           </Box>
         ) : (
-          <TableContainer component={Paper} sx={{ bgcolor: 'background.paper' }}>
+          <TableContainer
+            component={Paper}
+            sx={{ bgcolor: "background.paper" }}
+          >
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -74,4 +89,4 @@ export const JobsTable = ({ jobs }: JobsTableProps) => {
       </CardContent>
     </Card>
   );
-}; 
+};

@@ -25,16 +25,18 @@ app.add_middleware(
 
 # Get the project root directory (3 levels up from this file)
 PROJECT_ROOT = Path(__file__).parent.parent.parent
+# Get the TSX output directory
+TSX_OUTPUT_DIR = PROJECT_ROOT / "frotend4JL" / "dist"
 
 # Mount static files
 app.mount(
     "/dist",
-    StaticFiles(directory=str(PROJECT_ROOT / "frontend" / "dist")),
+    StaticFiles(directory=str(TSX_OUTPUT_DIR)),
     name="dist",
 )
 app.mount(
     "/assets",
-    StaticFiles(directory=str(PROJECT_ROOT / "frontend" / "dist" / "assets")),
+    StaticFiles(directory=str(TSX_OUTPUT_DIR / "assets")),
     name="assets",
 )
 app.mount(
