@@ -1,5 +1,4 @@
 import os
-import signal
 import shutil
 from dataclasses import dataclass
 from datetime import datetime
@@ -9,6 +8,7 @@ from typing import Optional, Dict, List
 import json
 from pathlib import Path
 import psutil
+from sqljobscheduler.configSetup import get_queue_db_path
 
 
 def get_JobRunner_pid():
@@ -43,13 +43,8 @@ class Job:
 class JobQueue:
     def __init__(self, db_path: Optional[str] = None):
         if db_path is None:
-            # Get the project root directory (three levels up from this file)
-            project_root = Path(__file__).parent.parent.parent
-
             # Use the queueDB directory
-            db_dir = project_root / "queueDB"
-            db_dir.mkdir(exist_ok=True)
-            db_path = db_dir / "analysis_jobs.db"
+            db_path = get_queue_db_path()
 
         self.db_path = Path(db_path)
         if not self.db_path.exists():

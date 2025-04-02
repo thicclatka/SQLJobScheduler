@@ -4,6 +4,7 @@ import pwd
 import grp
 import sys
 from sqljobscheduler.EmailNotifier import EmailNotifier
+from sqljobscheduler import configSetup
 
 
 def print_bar() -> None:
@@ -72,14 +73,13 @@ def setup_service_files() -> None:
     # Get the project root directory
     project_root = Path(__file__).parent.parent.parent
     server_service_dir = project_root / "ServerService"
-
-    server_services_files_dir = server_service_dir / "services"
-    server_services_files_dir.mkdir(exist_ok=True)
-
-    server_services_shell_scripts_dir = server_service_dir / "shell_scripts"
-    server_services_shell_scripts_dir.mkdir(exist_ok=True)
-
     templates_dir = server_service_dir / "templates"
+
+    output_shell_scripts_dir = configSetup.get_config_dir() / "shell_scripts"
+    output_shell_scripts_dir.mkdir(exist_ok=True)
+
+    output_service_files_dir = configSetup.get_config_dir() / "services"
+    output_service_files_dir.mkdir(exist_ok=True)
 
     # Configuration
     while True:
@@ -157,7 +157,7 @@ def setup_service_files() -> None:
         content = content.replace("{python_env}", str(python_env))
         content = content.replace("{scripts_dir}", scripts_dir)
 
-        with open(server_services_shell_scripts_dir / "start_jobrunner.sh", "w") as f:
+        with open(output_shell_scripts_dir / "start_jobrunner.sh", "w") as f:
             f.write(content)
 
         print("Generating gpuJobRunner.service...")
@@ -168,7 +168,7 @@ def setup_service_files() -> None:
         content = content.replace("{group}", group)
         content = content.replace("{scripts_dir}", scripts_dir)
 
-        with open(server_services_files_dir / "gpuJobRunner.service", "w") as f:
+        with open(output_service_files_dir / "gpuJobRunner.service", "w") as f:
             f.write(content)
 
         print("Generating jobLister.service...")
@@ -181,7 +181,7 @@ def setup_service_files() -> None:
         content = content.replace("{port}", port)
         content = content.replace("{app_name}", app_name)
 
-        with open(server_services_files_dir / "jobLister.service", "w") as f:
+        with open(output_service_files_dir / "jobLister.service", "w") as f:
             f.write(content)
 
         print("Service files generated successfully!")
@@ -194,8 +194,8 @@ def setup_service_files() -> None:
         return
 
     return (
-        server_services_files_dir,
-        server_services_shell_scripts_dir,
+        output_service_files_dir,
+        output_shell_scripts_dir,
         server_address,
         port,
         app_name,
@@ -203,17 +203,15 @@ def setup_service_files() -> None:
 
 
 def print_service_instructions_post_setup(
-    server_services_files_dir: Path, server_services_shell_scripts_dir: Path
+    output_service_files_dir: Path, output_shell_scripts_dir: Path
 ):
     print("\nTo install the service, run these commands:")
-    print(f"    sudo cp {server_services_files_dir}/*.service /etc/systemd/system/")
+    print(f"    sudo cp {output_service_files_dir}/*.service /etc/systemd/system/")
     print("     sudo systemctl daemon-reload")
 
     for service in ["gpuJobRunner", "jobLister"]:
         if service == "gpuJobRunner":
-            print(
-                f"     sudo chmod +x {server_services_shell_scripts_dir}/start_jobrunner.sh"
-            )
+            print(f"     sudo chmod +x {output_shell_scripts_dir}/start_jobrunner.sh")
         print(f"     sudo systemctl enable {service}")
         print(f"     sudo systemctl start {service}")
 
@@ -225,8 +223,8 @@ def main():
     # Setup service files
     print("First we need some information to setup the service files.")
     (
-        server_services_files_dir,
-        server_services_shell_scripts_dir,
+        output_service_files_dir,
+        output_shell_scripts_dir,
         server_address,
         port,
         app_name,
@@ -251,8 +249,8 @@ def main():
     print("Setup completed successfully!")
 
     print_service_instructions_post_setup(
-        server_services_files_dir=server_services_files_dir,
-        server_services_shell_scripts_dir=server_services_shell_scripts_dir,
+        output_service_files_dir=output_service_files_dir,
+        output_shell_scripts_dir=output_shell_scripts_dir,
     )
 
 

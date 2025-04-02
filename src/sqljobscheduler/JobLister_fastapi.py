@@ -1,14 +1,17 @@
 import os
 import subprocess
 from datetime import datetime
+from datetime import timedelta
 from pathlib import Path
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from sqljobscheduler import JobManager
-from sqljobscheduler.LockFileUtils import check_gpu_lock_file, get_current_gpu_job
+from sqljobscheduler import LockFileUtils
+from sqljobscheduler import configSetup
 
 app = FastAPI(title="GPU Job Scheduler Dashboard")
 
@@ -23,8 +26,9 @@ app.add_middleware(
 
 # Get the project root directory (3 levels up from this file)
 PROJECT_ROOT = Path(__file__).parent.parent.parent
+
 # Get the TSX output directory
-TSX_OUTPUT_DIR = PROJECT_ROOT / "frotend4JL" / "dist"
+TSX_OUTPUT_DIR = PROJECT_ROOT / "frontend4JL" / "dist"
 
 # Mount static files
 app.mount(
@@ -44,7 +48,7 @@ app.mount(
 )
 
 # Constants
-DB_PATH = PROJECT_ROOT / "queueDB" / "analysis_jobs.db"
+DB_PATH = configSetup.get_queue_db_path()
 
 
 def get_current_time():
@@ -61,28 +65,64 @@ def read_output_file(file_path: Path) -> str:
         return "Error: File not found"
 
 
-def read_job_runner_log() -> Optional[str]:
-    log_dir = PROJECT_ROOT / "logs" / "job_runner"
+def _get_job_runner_logs() -> List[Path]:
+    """Get all job runner logs sorted by modification time
+
+    Returns:
+        List[Path]: List of job runner log files sorted by modification time. [0] is the most recent log file.
+    """
+    log_dir = configSetup.get_log_dir() / "job_runner"
     if not log_dir.exists():
-        return None
+        print(f"Directory does not exist: {log_dir}")
+        return []
 
     log_files = list(log_dir.glob("JR_*.log"))
+
+    return sorted(log_files, key=lambda x: x.stat().st_mtime, reverse=True)
+
+
+def _get_job_runner_log_dates() -> List[datetime]:
+    """Get the modification dates of all job runner log files
+
+    Returns:
+        List[datetime]: List of modification dates sorted by modification time. [0] is the most recent log file.
+    """
+    log_files = _get_job_runner_logs()
+    log_files = [os.path.basename(f) for f in log_files]
+    dates = []
+    for f in log_files:
+        components = str(f).split("_")
+        dates.append(components[1].split(".")[0])
+    return [datetime.strptime(date, "%Y%m%d").date() for date in dates]
+
+
+def read_job_runner_log(log_idx: int = 0) -> Optional[str]:
+    """Read the job runner log file at the given index
+
+    Args:
+        log_idx (int, optional): Index of the log file to read. Defaults to 0, which selects the most recent log file.
+
+    Returns:
+        Optional[str]: Content of the log file or None if the file does not exist
+    """
+
+    log_files = _get_job_runner_logs()
     if not log_files:
         return None
 
-    log_file = max(log_files, key=lambda x: x.stat().st_mtime)
-    if log_file and log_file.exists():
-        return read_output_file(log_file)
+    log_file2read = log_files[log_idx]
+    if log_file2read.exists():
+        return read_output_file(log_file2read)
     return None
 
 
 async def get_current_job_output() -> dict:
-    tmux4WA_dir = PROJECT_ROOT / "logs" / "tmux4WA"
+    tmux4WA_dir = configSetup.get_log_dir() / "tmux4WA"
     tmux4WA_dir.mkdir(parents=True, exist_ok=True)
     current_job_log = tmux4WA_dir / "current_job"
 
-    if check_gpu_lock_file():
-        lock_info = get_current_gpu_job(verbose=False)
+    if LockFileUtils.check_gpu_lock_file():
+        lock_info = LockFileUtils.get_current_gpu_job(verbose=False)
         if lock_info["ctype"] == "sql":
             try:
                 result = subprocess.run(
@@ -129,13 +169,13 @@ def get_basename(path_str: str) -> str:
 
 @app.get("/")
 async def read_root():
-    return FileResponse(str(PROJECT_ROOT / "frontend" / "dist" / "index.html"))
+    return FileResponse(str(TSX_OUTPUT_DIR / "index.html"))
 
 
 @app.get("/api/gpu-status")
 async def get_gpu_status():
-    if check_gpu_lock_file():
-        lock_info = get_current_gpu_job(verbose=False)
+    if LockFileUtils.check_gpu_lock_file():
+        lock_info = LockFileUtils.get_current_gpu_job(verbose=False)
         if lock_info:
             return {
                 "status": "in_use",
@@ -200,10 +240,58 @@ async def get_jobs(status: Optional[List[str]] = None):
 
 @app.get("/api/job-runner-log")
 async def get_job_runner_log():
-    log_content = read_job_runner_log()
-    if log_content is None:
-        raise HTTPException(status_code=404, detail="No Job Runner logs found")
-    return {"content": log_content}
+    log_files = _get_job_runner_logs()  # Already sorted by date
+    if not log_files:
+        raise HTTPException(status_code=404, detail="No log files found")
+
+    # Get the dates for all available logs
+    dates = _get_job_runner_log_dates()
+
+    return {
+        "log_files": [log_file.name for log_file in log_files],
+        "content": [read_output_file(log_file) for log_file in log_files],
+        "availableDates": dates,
+    }
+
+
+@app.delete("/api/remove_job_logs")
+async def remove_job_logs():
+    try:
+        log_files = _get_job_runner_logs()
+        today = datetime.now().date()
+        week_ago = today - timedelta(days=7)
+        basename4log_files = [os.path.basename(f) for f in log_files]
+        removed_count = 0
+
+        for idx, log_file in enumerate(basename4log_files):
+            # Get date from filename (JR_YYYYMMDD.log)
+            date_str = str(log_file).split("_")[1].split(".")[0]
+            log_date = datetime.strptime(date_str, "%Y%m%d").date()
+
+            if log_date < week_ago:
+                try:
+                    log_files[idx].unlink()
+                    removed_count += 1
+                except Exception as e:
+                    return JSONResponse(
+                        status_code=500,
+                        content={
+                            "error": f"Failed to delete log file {log_file}: {str(e)}",
+                            "removed_count": removed_count,
+                        },
+                    )
+        result = {
+            "message": f"Successfully removed {removed_count} old log files"
+            if removed_count > 0
+            else "No old log files to remove",
+            "removed_count": removed_count,
+        }
+        print(result)
+        return result
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error during log cleanup: {str(e)}"
+        )
 
 
 @app.get("/api/current-job")
@@ -214,4 +302,4 @@ async def get_current_job():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")

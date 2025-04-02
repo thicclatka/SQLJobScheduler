@@ -1,5 +1,5 @@
 export interface GPUStatus {
-  status: 'in_use' | 'available';
+  status: "in_use" | "available";
   user?: string;
   script?: string;
   started?: string;
@@ -22,12 +22,19 @@ export interface Job {
 }
 
 export interface JobRunnerLog {
-  content: string;
+  log_files: string[];
+  content: string[];
+  availableDates: string[];
 }
 
 export interface CurrentJob {
   content?: string;
   error?: string;
-  type: 'sql' | 'cli' | 'none';
+  type: "sql" | "cli" | "none";
   job_id?: number;
-} 
+}
+
+export interface RemoveJobLogsResult {
+  message: string;
+  removed_count: number;
+}

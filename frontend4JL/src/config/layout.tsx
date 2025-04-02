@@ -24,7 +24,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { useTheme } from "@mui/material/styles";
 import { useState } from "react";
 import { CircularProgress } from "@mui/material";
-import { useApiData, REFETCH_INTERVAL } from "../services/useData";
+import { fetchDataPerConfig } from "../services/fetchData_utils";
 
 /** Width of the sidebar drawer in pixels */
 const DRAWER_WIDTH = 300;
@@ -56,7 +56,7 @@ const Header = ({ onToggleColorMode }: { onToggleColorMode: () => void }) => {
           <img
             src="/docs/images/gpuJobs.png"
             alt="GPU Job Scheduler Dashboard"
-            style={{ width: "60px", height: "60px" }}
+            style={{ width: "0px", height: "60px" }}
           />
           <Box>
             <Typography variant="h4" component="h1" gutterBottom>
@@ -101,11 +101,12 @@ const Sidebar = ({
     open={open}
     onClose={onClose}
     sx={{
-      width: DRAWER_WIDTH,
+      width: { xs: "100%", md: DRAWER_WIDTH },
       flexShrink: 0,
       "& .MuiDrawer-paper": {
-        width: DRAWER_WIDTH,
+        width: { xs: "100%", md: DRAWER_WIDTH },
         boxSizing: "border-box",
+        p: { xs: 1, md: 2 },
       },
     }}
   >
@@ -139,6 +140,7 @@ const MainContent = ({
   handleDrawerToggle: () => void;
   gpuStatus: GPUStatusType;
   gpuStatusUpdatedAt: number;
+  onLogDateSelect: (index: number) => void;
 }) => {
   const theme = useTheme();
   const isGPUAvailable = gpuStatus.status === "available";
@@ -152,7 +154,7 @@ const MainContent = ({
       component="main"
       sx={{
         flexGrow: 1,
-        p: 3,
+        p: { xs: 1, md: 3 },
         width: "100%",
         transition: theme.transitions.create(["margin", "width"], {
           easing: theme.transitions.easing.sharp,
@@ -165,7 +167,7 @@ const MainContent = ({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          mb: 3,
+          mb: { xs: 2, md: 3 },
         }}
       >
         <Button
@@ -178,12 +180,20 @@ const MainContent = ({
             "&.Mui-disabled": {
               color: "success.main",
             },
+            fontSize: { xs: "0.75rem", md: "0.875rem" },
+            padding: { xs: "4px 8px", md: "6px 16px" },
           }}
         >
           GPU Status: {isGPUAvailable ? "Available" : "In Use"}
         </Button>
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <Typography variant="caption" color="text.secondary">
+        <Box sx={{ display: "flex", gap: { xs: 1, md: 2 } }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{
+              fontSize: { xs: "0.7rem", md: "0.75rem" },
+            }}
+          >
             Last update: {formatLastUpdated(gpuStatusUpdatedAt)}
           </Typography>
         </Box>
@@ -192,7 +202,14 @@ const MainContent = ({
         <JobsTable jobs={jobs} />
       </Box>
       <Box
-        sx={{ display: "grid", gridTemplateColumns: { md: "1fr 1fr" }, gap: 3 }}
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            md: "1fr 1fr",
+          },
+          gap: { xs: 2, md: 3 },
+        }}
       >
         {jobRunnerLog && <JobRunnerLog log={jobRunnerLog} />}
         {currentJob && <CurrentJob job={currentJob} />}
@@ -219,42 +236,21 @@ export const Layout = ({ onToggleColorMode }: LayoutProps) => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // Fetch data with appropriate refetch intervals
-  const {
-    data: gpuStatus,
-    isLoading: isLoadingGPU,
-    dataUpdatedAt: gpuStatusUpdatedAt,
-  } = useApiData<GPUStatusType>(
-    "gpu-status",
-    {
-      status: "available",
-    },
-    REFETCH_INTERVAL.FAST
-  );
-  const {
-    data: jobs = [],
-    isLoading: isLoadingJobs,
-    dataUpdatedAt: jobsUpdatedAt,
-  } = useApiData<Job[]>("jobs", []);
-  const { data: jobRunnerLog, isLoading: isLoadingLog } =
-    useApiData<JobRunnerLogType>("job-runner-log", { content: "" });
-  const {
-    data: currentJob,
-    isLoading: isLoadingCurrentJob,
-    dataUpdatedAt: currentJobUpdatedAt,
-  } = useApiData<CurrentJobType>(
-    "current-job",
-    { type: "none" },
-    REFETCH_INTERVAL.FAST
-  );
+  // get status for each API call
+  const { gpuStatus, jobs, jobRunnerLog, currentJob } = fetchDataPerConfig([
+    "gpuStatus",
+    "jobs",
+    "jobRunnerLog",
+    "currentJob",
+  ]);
 
   // Show loading spinner while data is being fetched
   if (
-    isLoadingGPU ||
-    isLoadingJobs ||
-    isLoadingLog ||
-    isLoadingCurrentJob ||
-    !gpuStatus
+    gpuStatus.isLoading ||
+    jobs.isLoading ||
+    jobRunnerLog.isLoading ||
+    currentJob.isLoading ||
+    !gpuStatus.data
   ) {
     return (
       <Box
@@ -277,16 +273,16 @@ export const Layout = ({ onToggleColorMode }: LayoutProps) => {
         <Sidebar
           open={sidebarOpen}
           onClose={handleDrawerToggle}
-          gpuStatus={gpuStatus}
+          gpuStatus={gpuStatus.data}
         />
         <MainContent
-          jobs={jobs}
-          jobRunnerLog={jobRunnerLog}
-          currentJob={currentJob}
+          jobs={jobs.data}
+          jobRunnerLog={jobRunnerLog.data}
+          currentJob={currentJob.data}
           sidebarOpen={sidebarOpen}
           handleDrawerToggle={handleDrawerToggle}
-          gpuStatus={gpuStatus}
-          gpuStatusUpdatedAt={gpuStatusUpdatedAt}
+          gpuStatus={gpuStatus.data}
+          gpuStatusUpdatedAt={gpuStatus.dataUpdatedAt}
         />
       </Box>
     </Box>

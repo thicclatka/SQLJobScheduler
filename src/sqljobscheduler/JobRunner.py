@@ -9,6 +9,8 @@ from datetime import timedelta
 from sqljobscheduler import JobManager
 from sqljobscheduler import LockFileUtils
 from sqljobscheduler import EmailNotifier
+from sqljobscheduler import configSetup
+
 # import argparse
 
 
@@ -24,8 +26,7 @@ class JobRunner:
         self.no_job_count = 0
 
         # Set root directory and log directory
-        self.root_dir = Path(__file__).parent.parent.parent
-        self.log_dir = self.root_dir / log_dir_str
+        self.log_dir = configSetup.get_config_dir() / log_dir_str
         # Create log directory if it doesn't exist
         self.log_dir.mkdir(parents=True, exist_ok=True)
 

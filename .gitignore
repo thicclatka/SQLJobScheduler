@@ -3,7 +3,6 @@ Credentials/
 logs/
 queueDB/
 shell_scripts/
-services/
 CNMF_params/
 *.service
 *.db
