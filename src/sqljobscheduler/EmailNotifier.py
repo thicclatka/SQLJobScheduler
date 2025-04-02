@@ -189,6 +189,12 @@ class EmailNotifier:
 
         credentials_manager = CredentialsManager()
 
+        if credentials_manager.credentials_file.exists():
+            print(
+                f"\n***WARNING***\nEmail credentials already exist in {credentials_manager.credentials_file}!\nPlease delete it if you want to generate new ones. Otherwise, skipping for now...\n"
+            )
+            return
+
         print(
             "Utility to generate email credentials for SQL Job Scheduler email notifier"
         )
