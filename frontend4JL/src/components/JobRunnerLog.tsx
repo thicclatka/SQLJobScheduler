@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { JobRunnerLog as JobRunnerLogType } from "../types";
 import { useState } from "react";
-import { useRemoveOldLogs } from "../services/fetchData_utils";
+import { useRemoveOldLogs } from "../services/removeLogs";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 const DAYS_TO_KEEP_LOG = 7;
