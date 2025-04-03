@@ -56,11 +56,11 @@ const Header = ({ onToggleColorMode }: { onToggleColorMode: () => void }) => {
           <img
             src="/docs/images/gpuJobs.png"
             alt="GPU Job Scheduler Dashboard"
-            style={{ width: "0px", height: "60px" }}
+            style={{ width: "70px", height: "70px" }}
           />
           <Box>
             <Typography variant="h4" component="h1" gutterBottom>
-              GPU Jobs
+              GPU Jobs Dashboard
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Monitor GPU jobs in real-time
