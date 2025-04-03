@@ -124,7 +124,7 @@ class JobRunner:
 
         cmd.append(job.path2python_exec)
         cmd.append(job.programPath)
-        cmd.append("--from_sql")
+        # cmd.append("--from_sql")
 
         # Add parameters
         for key, value in job.parameters.items():
