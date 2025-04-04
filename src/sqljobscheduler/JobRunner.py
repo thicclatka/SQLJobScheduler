@@ -282,8 +282,16 @@ class JobRunner:
                     logging.info(string_job_note)
 
                 except Exception as e:
+                    self.stats["failed"] += 1
                     error_msg = f"Error processing job {job.id}: {str(e)}"
                     logging.error(error_msg)
+                    self.notifier.notify_job_failed(
+                        recipient=job.email_address,
+                        job_id=job.id,
+                        script=job.programPath,
+                        pid=int(self.pid),
+                        error=error_msg,
+                    )
                     self.queue.update_job_status(
                         job.id, JobManager.JobStatus.FAILED, str(e)
                     )
