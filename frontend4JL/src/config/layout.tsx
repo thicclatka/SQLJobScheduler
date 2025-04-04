@@ -3,7 +3,7 @@ import {
   Typography,
   Paper,
   IconButton,
-  useMediaQuery,
+  // useMediaQuery,
   Drawer,
   Button,
 } from "@mui/material";
@@ -140,7 +140,6 @@ const MainContent = ({
   handleDrawerToggle: () => void;
   gpuStatus: GPUStatusType;
   gpuStatusUpdatedAt: number;
-  onLogDateSelect: (index: number) => void;
 }) => {
   const theme = useTheme();
   const isGPUAvailable = gpuStatus.status === "available";
@@ -225,8 +224,8 @@ const MainContent = ({
  * @param {() => void} props.onToggleColorMode - Function to toggle between light/dark theme
  */
 export const Layout = ({ onToggleColorMode }: LayoutProps) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  // const theme = useTheme();
+  // const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   /**
