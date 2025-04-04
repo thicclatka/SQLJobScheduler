@@ -208,16 +208,16 @@ class JobRunner:
 
             if tmux_log_file.exists():
                 self.stats["failed"] += 1
-                logging.error(f"Job {job.id} failed. See tmux log: {tmux_log_file}")
+                error_msg = f"Job {job.id} failed. See tmux log: {tmux_log_file}"
+                logging.error(error_msg)
                 self.notifier.notify_job_failed(
                     recipient=job.email_address,
                     job_id=job.id,
                     script=job.programPath,
                     pid=int(self.pid),
-                    error=f"Job failed. See tmux log: {tmux_log_file}",
+                    error=error_msg,
                 )
                 job_status = JobManager.JobStatus.FAILED
-                error_msg = f"Job failed. See tmux log: {tmux_log_file}"
             else:
                 self.stats["completed"] += 1
                 logging.info(f"Job {job.id} completed successfully")
@@ -231,13 +231,19 @@ class JobRunner:
                 error_msg = None
 
         except Exception as e:
-            logging.error(
-                f"Error in handling wrapper for tmux processing for job {job.id}: {e}"
-            )
-            job_status = JobManager.JobStatus.FAILED
+            self.stats["failed"] += 1
             error_msg = (
                 f"Error in handling wrapper for tmux processing for job {job.id}: {e}"
             )
+            logging.error(error_msg)
+            self.notifier.notify_job_failed(
+                recipient=job.email_address,
+                job_id=job.id,
+                script=job.programPath,
+                pid=int(self.pid),
+                error=error_msg,
+            )
+            job_status = JobManager.JobStatus.FAILED
 
         finally:
             self.no_job_count = 0
