@@ -308,6 +308,16 @@ class JobRunner:
 
         except Exception as e:
             logging.error(f"Critical error in job runner: {str(e)}")
+            job_status = JobManager.JobStatus.FAILED
+            error_msg = f"Critical error in job runner: {str(e)}"
+            self.queue.update_job_status(job.id, JobManager.JobStatus.FAILED, str(e))
+            self.notifier.notify_job_failed(
+                recipient=job.email_address,
+                job_id=job.id,
+                script=job.programPath,
+                pid=int(self.pid),
+                error=error_msg,
+            )
 
     def start(self) -> None:
         """Start the job runner"""
