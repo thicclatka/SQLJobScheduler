@@ -8,7 +8,8 @@ from datetime import datetime
 from datetime import timedelta
 from typing import Optional
 from sqljobscheduler import JobManager
-from sqljobscheduler import LockFileUtils
+
+# from sqljobscheduler import LockFileUtils
 from sqljobscheduler import EmailNotifier
 from sqljobscheduler import configSetup
 
@@ -145,17 +146,17 @@ class JobRunner:
         )
 
         server = Server(socket_path=f"/tmp/tmux-{os.getuid()}/gpuJobRunner")
-        LockFileUtils.gpu_lock_check_timer(duration=600)
+        # LockFileUtils.gpu_lock_check_timer(duration=600)
 
-        if not LockFileUtils.check_gpu_lock_file():
-            print("Creating GPU lock file for this script")
-            LockFileUtils.create_gpu_lock_file(
-                user=job.user,
-                script=job.programPath,
-                pid=int(self.pid),
-                ctype="sql",
-                job_id=job.id,
-            )
+        # if not LockFileUtils.check_gpu_lock_file():
+        #     print("Creating GPU lock file for this script")
+        #     LockFileUtils.create_gpu_lock_file(
+        #         user=job.user,
+        #         script=job.programPath,
+        #         pid=int(self.pid),
+        #         ctype="sql",
+        #         job_id=job.id,
+        #     )
 
         try:
             # Send email notification that job is starting
@@ -247,8 +248,8 @@ class JobRunner:
 
         finally:
             self.no_job_count = 0
-            LockFileUtils.remove_gpu_lock_file()
-            logging.info("Removed GPU lock file")
+            # LockFileUtils.remove_gpu_lock_file()
+            # logging.info("Removed GPU lock file")
             return job_status, error_msg
 
     def run_pending_jobs(self) -> None:
