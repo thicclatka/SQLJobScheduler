@@ -99,6 +99,8 @@ out/
 
 # Package manager files
 pnpm-lock.yaml
+yarn.lock
+*.lock
 .pnp.*
 .yarn/cache
 .yarn/unplugged
