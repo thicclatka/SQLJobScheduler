@@ -6,7 +6,7 @@ from pathlib import Path
 from libtmux import Server
 from datetime import datetime
 from datetime import timedelta
-from typing import Optional
+from typing import Optional, Dict, Any
 from sqljobscheduler import JobManager
 
 # from sqljobscheduler import LockFileUtils
@@ -105,6 +105,15 @@ class JobRunner:
             _end_log_file()
             self._init_stats()
             self._setup_logging()
+
+    def _mask_email_in_parameters(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
+        """Mask email addresses in parameters dictionary"""
+        masked_params = parameters.copy()
+        for key, value in masked_params.items():
+            if isinstance(value, str) and "@" in value:
+                # Basic email masking - replace characters with asterisks
+                masked_params[key] = EmailNotifier.mask_email(value)
+        return masked_params
 
     def run_job(
         self, job: JobManager.Job
@@ -273,7 +282,8 @@ class JobRunner:
                 try:
                     self.stats["total"] += 1
                     logging.info(f"Processing job {job.id}: {job.programPath}")
-                    logging.info(f"Parameters: {job.parameters}")
+                    masked_params = self._mask_email_in_parameters(job.parameters)
+                    logging.info(f"Parameters: {masked_params}")
 
                     self.queue.update_job_status(job.id, JobManager.JobStatus.RUNNING)
                     job_status, error_msg = self.run_job(job)

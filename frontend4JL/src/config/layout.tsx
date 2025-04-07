@@ -133,7 +133,7 @@ const MainContent = ({
   gpuStatus,
   gpuStatusUpdatedAt,
 }: {
-  jobs: Job[];
+  jobs: Job[] | { [key: string]: Job[] };
   jobRunnerLog?: JobRunnerLogType;
   currentJob?: CurrentJobType;
   sidebarOpen: boolean;

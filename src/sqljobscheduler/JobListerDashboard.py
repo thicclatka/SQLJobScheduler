@@ -190,23 +190,28 @@ async def get_gpu_status():
     return {"status": "available"}
 
 
+def mask_email(email: str) -> str:
+    """Mask an email address for privacy.
+    Example: 'ahuro12293@gmail.com' -> 'a********@gmail.com'
+    """
+    if not email or "@" not in email:
+        return email
+
+    local_part, domain = email.split("@")
+    if len(local_part) > 1:
+        masked_local = local_part[0] + "*" * (len(local_part) - 1)
+    else:
+        masked_local = local_part
+
+    return f"{masked_local}@{domain}"
+
+
 @app.get("/api/jobs")
-async def get_jobs(status: Optional[List[str]] = None):
+async def get_jobs():
     try:
         queue = JobManager.JobQueue(DB_PATH)
         jobs = queue.get_all_jobs()
         if not jobs:
-            return []
-
-        today = datetime.now()
-        filtered_jobs = [
-            job
-            for job in jobs
-            if job.status == JobManager.JobStatus.PENDING
-            or job.created_at.date() == today.date()
-        ]
-
-        if not filtered_jobs:
             return []
 
         jobs_data = [
@@ -215,7 +220,7 @@ async def get_jobs(status: Optional[List[str]] = None):
                 "program": get_basename(job.programPath).replace(".py", ""),
                 "python_exec": shorten_path(job.path2python_exec),
                 "user": job.user,
-                "email": job.email_address,
+                "email": mask_email(job.email_address),
                 "status": job.status.value,
                 "created": job.created_at.strftime("%Y-%m-%d %H:%M"),
                 "started": job.started_at.strftime("%Y-%m-%d %H:%M")
@@ -228,11 +233,8 @@ async def get_jobs(status: Optional[List[str]] = None):
                 if job.error_message and len(job.error_message) > 50
                 else job.error_message or "-",
             }
-            for job in filtered_jobs
+            for job in jobs
         ]
-
-        if status:
-            jobs_data = [job for job in jobs_data if job["status"] in status]
 
         return jobs_data
     except Exception as e:

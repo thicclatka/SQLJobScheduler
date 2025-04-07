@@ -1,5 +1,5 @@
 [Unit]
-Description=SQL Job Runner Service for GPU heavy jobs
+Description={description}
 After=network.target
 Wants=network.target
 
@@ -9,10 +9,10 @@ User={user}
 Group={group}
 
 # Start the job runner
-ExecStart={scripts_dir}/ServerService/shell_scripts/start_jobrunner.sh
+ExecStart={shell_script_path}
 
 # Working directory
-WorkingDirectory={scripts_dir}
+WorkingDirectory={working_dir}
 
 # Restart the service
 Restart=always

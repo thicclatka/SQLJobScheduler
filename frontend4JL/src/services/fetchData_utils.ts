@@ -1,4 +1,4 @@
-import { useQuery, UseQuery, UseQueryResult } from "@tanstack/react-query";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { GPUStatus, Job, JobRunnerLog, CurrentJob } from "../types";
 
 // constants for data refetch intervals
@@ -20,7 +20,7 @@ export const REFETCH_INTERVAL = {
 const createConfigEntry = (
   key: string,
   defaultValue: any,
-  interval: number = REFETCH_INTERVAL.NORMAL,
+  interval: number = REFETCH_INTERVAL.NORMAL
 ): DataFetchConfigEntry => ({
   key,
   defaultValue,
@@ -31,18 +31,18 @@ export const dataFetchConfig = {
   gpuStatus: createConfigEntry(
     "gpu-status",
     { status: "available" } as GPUStatus,
-    REFETCH_INTERVAL.NORMAL,
+    REFETCH_INTERVAL.NORMAL
   ),
   jobs: createConfigEntry("jobs", [] as Job[], REFETCH_INTERVAL.NORMAL),
   jobRunnerLog: createConfigEntry(
     "job-runner-log",
     { content: [], availableDates: [], log_files: [] } as JobRunnerLog,
-    REFETCH_INTERVAL.NORMAL,
+    REFETCH_INTERVAL.NORMAL
   ),
   currentJob: createConfigEntry(
     "current-job",
     { type: "none" } as CurrentJob,
-    REFETCH_INTERVAL.FAST,
+    REFETCH_INTERVAL.FAST
   ),
 } as const;
 
@@ -79,7 +79,7 @@ export const fetchData = <T>(
   key: string,
   defaultValue: T,
   interval: number = REFETCH_INTERVAL.NORMAL,
-  queryParams: string = "",
+  queryParams: string = ""
 ): UseQueryResult<T> => {
   return useQuery<T>({
     queryKey: [key, queryParams],
@@ -96,7 +96,7 @@ export const fetchData = <T>(
  */
 export const fetchDataPerConfig = <K extends keyof DataFetchConfig>(
   configKeys: K[],
-  overrideDefault?: Partial<DataFetchConfig>,
+  overrideDefault?: Partial<DataFetchConfig>
 ): DataFetchResults => {
   return configKeys.reduce((acc, configKey) => {
     const config = dataFetchConfig[configKey];
@@ -104,7 +104,7 @@ export const fetchDataPerConfig = <K extends keyof DataFetchConfig>(
     const { data, isLoading, dataUpdatedAt } = fetchData(
       config.key,
       defaultValue,
-      config.interval,
+      config.interval
     );
 
     return {
