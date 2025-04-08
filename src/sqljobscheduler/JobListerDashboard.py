@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 from datetime import datetime
@@ -208,6 +209,20 @@ def mask_email(email: str) -> str:
 
 @app.get("/api/jobs")
 async def get_jobs():
+    def _prepare_params4display(parameters: dict) -> str:
+        # Create a copy of parameters to avoid modifying the original
+        masked_params = parameters.copy()
+
+        if "path" in masked_params.keys():
+            masked_params["path"] = shorten_path(masked_params["path"], parts=2)
+
+        # Remove email from parameters
+        if "email" in masked_params.keys():
+            del masked_params["email"]
+
+        # Prettify the output using pprint
+        return json.dumps(masked_params, indent=0)
+
     try:
         queue = JobManager.JobQueue(DB_PATH)
         jobs = queue.get_all_jobs()
@@ -229,6 +244,7 @@ async def get_jobs():
                 "completed": job.completed_at.strftime("%Y-%m-%d %H:%M")
                 if job.completed_at
                 else "-",
+                "parameters": _prepare_params4display(job.parameters),
                 "error": (job.error_message[:50] + "...")
                 if job.error_message and len(job.error_message) > 50
                 else job.error_message or "-",
