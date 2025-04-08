@@ -26,11 +26,12 @@ Shows a comprehensive table of jobs with:
 - Job ID
 - Program name
 - Email address
+- Parameters (hover with cursor to see all details)
 - Status
 - Creation time
 - Start time
 - Completion time
-- Error messages (if any)
+- Error messages (if any; hover with cursor to see all details)
 
 #### Filtering Options
 
@@ -38,14 +39,14 @@ Shows a comprehensive table of jobs with:
 
 ### 3. Real-time Output
 
-The dashboard provides real-time output display for currently running jobs and status of the job runner:
+The dashboard provides real-time output display for status of the job runner and if there are any current jobs:
 
 #### Current Job Output
 
 - Automatically captures and displays output from the running job's tmux session
 - Updates in real-time as the dashboard refreshes
 - Shows complete terminal output including errors and progress
-- Source of progress is a captured pane from the tmux session stored in `logs/tmux4wa`
+- Source of progress is a captured pane from the tmux session stored in `~/.sqljobscheduler/logs/tmux4WA/`
 
 #### Job Runner Status
 

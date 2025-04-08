@@ -4,51 +4,23 @@ This guide covers how to access and manage the JobRunner service, including its 
 
 ## Accessing JobRunner Logs
 
-The JobRunner service logs are managed through both systemd and tmux. Here's how to access them:
+Logs for the runner are stored `~/.sqljobscheduler/logs/job_runner`. If any issues related to tmux operations are run into within the analysis of a job are stored in `~/.sqljobscheduler/logs/tmux`.
 
-### Systemd Logs
-
-```bash
-# View real-time logs
-sudo journalctl -u gpuJobRunner -f
-
-# View logs since last boot
-sudo journalctl -u gpuJobRunner -b
-
-# View logs for a specific time period
-sudo journalctl -u gpuJobRunner --since "1 hour ago" --until "now"
-```
-
-### TMUX Session Access
+## TMUX Session Access
 
 The JobRunner runs in a tmux session with specific socket and server configurations:
 
-1. **TMUX Socket Location**:
-
 ```bash
 # The socket is located at
-/tmp/tmux-$(id -u)/gpuJobRunner
+/tmp/tmux-$(id -u)/JobRunner
+
+# attach to session which stores job runner
+tmux /tmp/tmux-$(id -u)/JobRunner attach -t JobRunner
+
+# attach to specific job
+tmux /tmp/tmux-$(id -u)/JobRunner attach -t job[NUM]
 ```
 
-2. **List Available Sessions**:
+## Systemd Settings
 
-```bash
-# Using the specific socket
-tmux -S /tmp/tmux-$(id -u)/gpuJobRunner ls
-```
-
-3. **Attach to the JobRunner Session**:
-
-```bash
-# Using the specific socket
-tmux -S /tmp/tmux-$(id -u)/gpuJobRunner attach -t JobRunner
-```
-
-4. **Detach from Session**:
-
-- Press `Ctrl + b` followed by `d` to detach
-- The session will continue running in the background
-
-## Logs
-
-Logs for the runner are stored `~/.sqljobscheduler/logs/job_runner`. If any issues related to tmux operations are run into within the analysis of a job are stored in `~/.sqljobscheduler/logs/tmux`.
+Service can be found under the name `joblister.service`.

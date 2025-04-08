@@ -62,6 +62,34 @@ SQLJobScheduler provides GPU locking functionality to prevent multiple jobs from
 
 ### Basic GPU Lock Usage
 
+#### With GPU Lock context
+
+```python
+import os
+import getpass
+from pathlib import Path
+from sqljobscheduler import LockFileUtils
+
+def main()
+    # context will handle checking, creating, and removing gpu lock files
+    with LockFileUtils.run_script_Wgpu_lock(
+        user=getpass.getuser(),
+        script=Path(__file__).name,
+        pid=int(os.getpid()),
+        ctype="cli"
+        # job_id: str [Optional]
+        # logging_bool: bool Whether to logging.info when gpu lock is applied or remove, default is True
+        try:
+            example_func()
+        except:
+            pass
+
+if __name__ == "__main__":
+    main()
+```
+
+#### Without GPU Lock context (if more flexibility is desired)
+
 ```python
 import os
 import getpass
@@ -80,10 +108,18 @@ def main():
             script=Path(__file__).name,
             pid=int(os.getpid()),
             ctype="cli", # "cli" is default option
+            # job_id: str [Optional]
         )
     
     try:
         # Your GPU-intensive code here
+        ...
+    except as Exception1:
+        ...
+    .
+    .
+    .
+    except as ExeceptionN:
         ...
     finally:
         # Always remove the lock file when done
@@ -93,22 +129,10 @@ if __name__ == "__main__":
     main()
 ```
 
-### CLI vs running as a job from a job database
-
-If you are running a script that handles non-SQL (CLI) or SQL-based executions, you need this line if you wish to adjust or modify based on those conditions:
-
-```python
-sql_parser = LockFileUtils.lock_file_argparser()
-if not sql_parser.from_sql:
-    # anything you want to do for CLI
-if sql_parser.from_sql:
-    # anything you want to do for SQL-based executions
-```
-
 ### Best Practices
 
 1. **Always Remove Lock Files**:
-   - Use `try`/`finally` blocks to ensure lock files are removed
+   - Use `try`/`finally` blocks to ensure lock files are removed if not using GPU Lock Context
    - Call `LockFileUtils.remove_gpu_lock_file()` in the `finally` block
 
 2. **Check GPU Availability**:
@@ -120,8 +144,3 @@ if sql_parser.from_sql:
    - Include script name
    - Include process ID
    - Specify client type ("cli" for command line)
-
-4. **Command Line Integration**:
-   - Use `LockFileUtils.lock_file_argparser()` for command line argument parsing
-   - Handle SQL vs non-SQL execution paths appropriately
-   - Use `parser.parse_known_args()` to handle both SQL and custom arguments:
