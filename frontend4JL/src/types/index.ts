@@ -18,6 +18,7 @@ export interface Job {
   created: string;
   started: string;
   completed: string;
+  parameters: string;
   error: string;
 }
 

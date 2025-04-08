@@ -55,6 +55,11 @@ export const GPUStatus = ({ status }: GPUStatusProps) => {
                   Type: {status.type}
                 </Typography>
               )}
+              {status.job_id && (
+                <Typography variant="body2" color="text.secondary">
+                  Job ID: {String(status.job_id).padStart(5, "0")}
+                </Typography>
+              )}
             </Box>
           )}
         </Box>

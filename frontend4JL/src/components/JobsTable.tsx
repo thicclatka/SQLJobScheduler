@@ -16,6 +16,7 @@ import {
   FormControl,
   InputLabel,
   TextField,
+  Tooltip,
 } from "@mui/material";
 import { Job } from "../types";
 import { formatDate, getStatusColor } from "../utils/text_formatting";
@@ -24,6 +25,131 @@ import { useState, useMemo } from "react";
 interface JobsTableProps {
   jobs: Job[];
 }
+
+const FilterBarForJobsTable = ({
+  statusFilter,
+  setStatusFilter,
+  uniqueStatuses,
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
+}: {
+  statusFilter: string;
+  setStatusFilter: (status: string) => void;
+  uniqueStatuses: string[];
+  startDate: string;
+  setStartDate: (date: string) => void;
+  endDate: string;
+  setEndDate: (date: string) => void;
+}) => (
+  <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+    <FormControl size="small" sx={{ minWidth: 120 }}>
+      <InputLabel>Status</InputLabel>
+      <Select
+        value={statusFilter}
+        label="Status"
+        onChange={(e) => setStatusFilter(e.target.value)}
+      >
+        <MenuItem value="">All Statuses</MenuItem>
+        {uniqueStatuses.map((status) => (
+          <MenuItem key={status} value={status}>
+            {status}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+
+    <TextField_forDate
+      label="Start Date"
+      value={startDate}
+      setValue={setStartDate}
+    />
+    <TextField_forDate label="End Date" value={endDate} setValue={setEndDate} />
+  </Box>
+);
+
+const TextField_forDate = ({
+  label,
+  value,
+  setValue,
+}: {
+  label: string;
+  value: string;
+  setValue: (value: string) => void;
+}) => (
+  <TextField
+    size="small"
+    type="date"
+    label={label}
+    value={value}
+    onChange={(e) => setValue(e.target.value)}
+    InputLabelProps={{ shrink: true }}
+  />
+);
+
+const TableCell_withTooltip = ({
+  job_text,
+  width,
+}: {
+  job_text: string;
+  width: string;
+}) => {
+  const parsed_job_text = (() => {
+    try {
+      // First try to parse as is
+      const parsed = JSON.parse(job_text);
+      return JSON.stringify(parsed, null, 1);
+    } catch {
+      return job_text;
+    }
+  })();
+
+  return (
+    <TableCell
+      width={width}
+      sx={{
+        maxWidth: "200px",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        position: "relative",
+      }}
+    >
+      <Tooltip
+        title={
+          <Box
+            component="pre"
+            sx={{
+              margin: 0,
+              whiteSpace: "pre-wrap",
+              fontFamily: "monospace",
+              fontSize: "0.8rem",
+            }}
+          >
+            {parsed_job_text}
+          </Box>
+        }
+        placement="top"
+        arrow
+        enterDelay={500}
+      >
+        <Box
+          component="span"
+          sx={{
+            cursor: "help",
+            display: "block",
+            width: "100%",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {job_text}
+        </Box>
+      </Tooltip>
+    </TableCell>
+  );
+};
 
 export const JobsTable = ({ jobs }: JobsTableProps) => {
   const [statusFilter, setStatusFilter] = useState("");
@@ -68,41 +194,15 @@ export const JobsTable = ({ jobs }: JobsTableProps) => {
         </Box>
 
         {/* Filter Bar */}
-        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel>Status</InputLabel>
-            <Select
-              value={statusFilter}
-              label="Status"
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <MenuItem value="">All Statuses</MenuItem>
-              {uniqueStatuses.map((status) => (
-                <MenuItem key={status} value={status}>
-                  {status}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <TextField
-            size="small"
-            type="date"
-            label="Start Date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            size="small"
-            type="date"
-            label="End Date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-        </Box>
-
+        <FilterBarForJobsTable
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          uniqueStatuses={uniqueStatuses}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+        />
         {filteredJobs.length === 0 ? (
           <Box
             display="flex"
@@ -129,6 +229,7 @@ export const JobsTable = ({ jobs }: JobsTableProps) => {
                   <TableCell width="5%">ID</TableCell>
                   <TableCell width="10%">Program</TableCell>
                   <TableCell width="10%">Email</TableCell>
+                  <TableCell width="15%">Parameters</TableCell>
                   <TableCell width="10%">Status</TableCell>
                   <TableCell width="10%">Created</TableCell>
                   <TableCell width="10%">Started</TableCell>
@@ -142,6 +243,10 @@ export const JobsTable = ({ jobs }: JobsTableProps) => {
                     <TableCell width="5%">{job.id}</TableCell>
                     <TableCell width="10%">{job.program}</TableCell>
                     <TableCell width="10%">{job.email}</TableCell>
+                    <TableCell_withTooltip
+                      job_text={job.parameters}
+                      width="15%"
+                    />
                     <TableCell width="10%">
                       <Chip
                         label={job.status}
@@ -154,17 +259,7 @@ export const JobsTable = ({ jobs }: JobsTableProps) => {
                     <TableCell width="10%">
                       {formatDate(job.completed)}
                     </TableCell>
-                    <TableCell
-                      width="30%"
-                      sx={{
-                        maxWidth: 0,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {job.error}
-                    </TableCell>
+                    <TableCell_withTooltip job_text={job.error} width="30%" />
                   </TableRow>
                 ))}
               </TableBody>
