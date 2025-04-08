@@ -4,6 +4,8 @@ import time
 from typing import Literal, Optional, Dict
 import json
 import tempfile
+import logging
+from contextlib import contextmanager
 
 GPU_LOCK_FILE = Path(tempfile.gettempdir()) / "gpu_lock.json"
 
@@ -88,6 +90,30 @@ def get_current_gpu_job(verbose: bool = False) -> Optional[Dict]:
         if verbose:
             print(f"Error reading GPU lock file: {e}")
         return None
+
+
+@contextmanager
+def run_script_Wgpu_lock(
+    user: str,
+    script: str,
+    pid: int,
+    ctype: Literal["cli", "sql"] = "sql",
+    job_id: Optional[str] = None,
+):
+    if not check_gpu_lock_file():
+        logging.info("Creating GPU lock file for this run")
+        create_gpu_lock_file(
+            user=user,
+            script=script,
+            pid=pid,
+            job_id=job_id,
+            ctype=ctype,
+        )
+    try:
+        yield
+    finally:
+        logging.info("Removing GPU lock file")
+        remove_gpu_lock_file()
 
 
 def lock_file_argparser():
