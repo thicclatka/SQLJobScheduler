@@ -1,9 +1,13 @@
 import subprocess
-from pathlib import Path
+import json
 import pwd
 import grp
 import sys
+import os
+import socket
+from pathlib import Path
 from sqljobscheduler.EmailNotifier import EmailNotifier
+from sqljobscheduler import configSetup
 
 
 def print_bar() -> None:
@@ -65,21 +69,45 @@ def verify_python_env(python_env: Path) -> bool:
         return False
 
 
+def get_remote_ip() -> str:
+    """Get the remote IP address of the system."""
+    try:
+        return socket.gethostbyname(socket.gethostname())
+    except Exception as e:
+        print(f"Error getting remote IP address: {e}")
+        return None
+
+
+def load_template(templates_dir: Path, template_name: str) -> str:
+    """Load a template file from the templates directory"""
+    template_path = templates_dir / template_name
+    with open(template_path, "r") as f:
+        return f.read()
+
+
 def setup_service_files() -> None:
     """Generate service and runner files from templates."""
     print("Setting up service and runner files...")
 
     # Get the project root directory
-    project_root = Path(__file__).parent.parent.parent
-    server_service_dir = project_root / "ServerService"
-
-    server_services_files_dir = server_service_dir / "services"
-    server_services_files_dir.mkdir(exist_ok=True)
-
-    server_services_shell_scripts_dir = server_service_dir / "shell_scripts"
-    server_services_shell_scripts_dir.mkdir(exist_ok=True)
-
+    repo_dir = Path(__file__).parent.parent.parent
+    server_service_dir = repo_dir / "ServerService"
     templates_dir = server_service_dir / "templates"
+    output_dir = Path(configSetup.get_config_dir(), "SystemdServices")
+    output_dir.mkdir(exist_ok=True, parents=True)
+
+    shell_template = load_template(templates_dir, "sh_template.txt")
+    service_template = load_template(templates_dir, "service_template.txt")
+
+    output_shell_scripts_dir = output_dir / "shell_scripts"
+    output_shell_scripts_dir.mkdir(exist_ok=True, parents=True)
+
+    output_service_files_dir = output_dir / "services"
+    output_service_files_dir.mkdir(exist_ok=True, parents=True)
+
+    # load app settings
+    with open(templates_dir / "app_settings.json", "r") as f:
+        apps = json.load(f)
 
     # Configuration
     while True:
@@ -100,122 +128,132 @@ def setup_service_files() -> None:
         else:
             print(f"Group '{group}' does not exist on this system. Please try again.")
 
-    scripts_dir = str(project_root)
-
     # Automatically detect current Python environment
     python_env = get_current_python_env()
     if not verify_python_env(python_env):
         print(f"Error: Current Python environment at '{python_env}' is not valid.")
         return
 
+    server_address = get_remote_ip()
+    print(f"Remote IP address found: {server_address}")
     while True:
-        server_address = input(
-            "Enter outgoing IP address of server if SQLJobScheduler is running remotely on a server (Hit Enter for default which will leave it blank): "
-        )
-        if server_address == "":
-            server_address = None
+        choice = input("Do you want to use this IP address? (y/n): ")
+        if choice.lower() in ["y", "n"]:
             break
         else:
-            break
+            print("Invalid choice. Please try again.")
 
-    while True:
-        port = input("Enter the port number for the job lister: ")
-        if port.isdigit() and 1 <= int(port) <= 65535:
-            break
-        else:
-            print(
-                "Invalid port number. Please enter a valid port number between 1 and 65535."
+    if choice.lower() == "n":
+        print("Please enter the server address for remote access.")
+        while True:
+            server_address = input(
+                "(use `ip a` to find broadcast address; type s or skip): "
             )
-
-    while True:
-        app_name = input(
-            "Enter the name of the app (Hit Enter for default, which is 'gpujobs'): "
-        )
-        if app_name:
-            break
-        else:
-            app_name = "gpujobs"
-            break
+            if server_address:
+                break
+            elif server_address.lower() in ["s", "skip"]:
+                server_address = None
+                break
+            else:
+                print("Server address cannot be empty. Please try again.")
 
     print("Using:")
     print(f"    User: {user}")
     print(f"    Group: {group}")
     print(f"    Python environment: {python_env}")
-    print(f"    Scripts directory: {scripts_dir}")
-    print(f"    Server address: {server_address}")
-    print(f"    Port: {port}")
-    print(f"    App name: {app_name}")
+    print(f"    Repo directory: {str(repo_dir)}")
+    if server_address is not None:
+        print(f"    Server address: {server_address}")
 
     print("Processing templates and generating service files...")
     print_bar()
 
-    try:
-        print("Generating start_jobrunner.sh...")
-        # Process start_jobrunner.sh template
-        with open(templates_dir / "template4_start_jobrunner", "r") as f:
-            content = f.read()
-        content = content.replace("{python_env}", str(python_env))
-        content = content.replace("{scripts_dir}", scripts_dir)
+    created_services = []
 
-        with open(server_services_shell_scripts_dir / "start_jobrunner.sh", "w") as f:
-            f.write(content)
+    for app_name, app_settings in apps.items():
+        run_script_path = (
+            output_shell_scripts_dir / f"run{app_settings['script_name'].upper()}.sh"
+        )
+        run_script_path.parent.mkdir(parents=True, exist_ok=True)
 
-        print("Generating gpuJobRunner.service...")
-        # Process gpuJobRunner.service template
-        with open(templates_dir / "template4jpuJobRunner", "r") as f:
-            content = f.read()
-        content = content.replace("{user}", user)
-        content = content.replace("{group}", group)
-        content = content.replace("{scripts_dir}", scripts_dir)
+        if app_settings["port"] is not None:
+            app_settings["command"] = app_settings["command"].format(
+                port=app_settings["port"]
+            )
 
-        with open(server_services_files_dir / "gpuJobRunner.service", "w") as f:
-            f.write(content)
+        print(f"Processing {app_name}")
+        for key, value in app_settings.items():
+            print(f"    {key}: {value}")
+        print()
 
-        print("Generating jobLister.service...")
-        # Process jobLister.service template
-        with open(templates_dir / "template4JobLister", "r") as f:
-            content = f.read()
-        content = content.replace("{user}", user)
-        content = content.replace("{python_env}", str(python_env))
-        content = content.replace("{scripts_dir}", scripts_dir)
-        content = content.replace("{port}", port)
-        content = content.replace("{app_name}", app_name)
+        run_script_content = shell_template.format(
+            python_env=python_env,
+            repo_dir=str(repo_dir),
+            service_name=app_settings["script_name"],
+            command=app_settings["command"],
+        )
 
-        with open(server_services_files_dir / "jobLister.service", "w") as f:
-            f.write(content)
+        with open(run_script_path, "w") as f:
+            f.write(run_script_content)
 
-        print("Service files generated successfully!")
+        service_content = service_template.format(
+            description=app_settings["description"],
+            user=user,
+            group=group,
+            shell_script_path=run_script_path,
+            working_dir=os.path.dirname(run_script_path),
+        )
 
-    except FileNotFoundError as e:
-        print(f"Error: Template file not found: {e}")
-        return
-    except Exception as e:
-        print(f"Error generating service files: {e}")
-        return
+        service_path = output_service_files_dir / f"{app_name.lower()}.service"
+        with open(service_path, "w") as f:
+            f.write(service_content)
+
+        created_services.append(
+            {
+                "name": app_name,
+                "script_name": app_settings["script_name"],
+                "shell_name": run_script_path.name,
+                "port": app_settings["port"],
+                "service_path": service_path.name,
+            }
+        )
+    print_bar()
+    print("Service files generated successfully!")
+
+    print("\nService files created successfully!")
 
     return (
-        server_services_files_dir,
-        server_services_shell_scripts_dir,
+        output_dir,
+        created_services,
         server_address,
-        port,
-        app_name,
+        user,
+        group,
     )
 
 
-def print_service_instructions_post_setup(
-    server_services_files_dir: Path, server_services_shell_scripts_dir: Path
+def print_service_install_instructions(
+    user: str, group: str, output_dir: Path, created_services: list
 ):
-    print("\nTo install the service, run these commands:")
-    print(f"    sudo cp {server_services_files_dir}/*.service /etc/systemd/system/")
-    print("     sudo systemctl daemon-reload")
+    print("Services user set to:", user)
+    print("Services group set to:", group)
+    print("\nTo install the services:")
+    print("1. Copy the service files to systemd directory:")
+    print(f"   sudo cp {output_dir}/services/*.service /etc/systemd/system/")
 
-    for service in ["gpuJobRunner", "jobLister"]:
-        if service == "gpuJobRunner":
-            print(
-                f"     sudo chmod +x {server_services_shell_scripts_dir}/start_jobrunner.sh"
-            )
-        print(f"     sudo systemctl enable {service}")
-        print(f"     sudo systemctl start {service}")
+    print("\n2. Reload systemd daemon to log changes:")
+    print("   sudo systemctl daemon-reload")
+
+    print("\n3. Make run scripts executable and enable and start each service:")
+    for service in created_services:
+        print(f"For {service['name']}:")
+        print(f"   chmod +x {output_dir}/shell_scripts/{service['shell_name']}")
+        print(f"   sudo systemctl enable {service['name'].lower()}")
+        print(f"   sudo systemctl start {service['name'].lower()}")
+        print()
+
+    print("\n4. Check status of services:")
+    for service in created_services:
+        print(f"   sudo systemctl status {service['name'].lower()}")
 
 
 def main():
@@ -225,11 +263,11 @@ def main():
     # Setup service files
     print("First we need some information to setup the service files.")
     (
-        server_services_files_dir,
-        server_services_shell_scripts_dir,
+        output_dir,
+        created_services,
         server_address,
-        port,
-        app_name,
+        user,
+        group,
     ) = setup_service_files()
 
     print(
@@ -238,7 +276,16 @@ def main():
     print(
         "Works best with gmail. Please refer to the documentation for more details to obtain app password: https://support.google.com/mail/answer/185833?hl=en\n"
     )
-    dashboard_url = f"{server_address}:{port}/{app_name}"
+    port2use = None
+    for service in created_services:
+        if service["port"] is not None:
+            port2use = service["port"]
+            break
+
+    if server_address is None:
+        dashboard_url = None
+    else:
+        dashboard_url = f"{server_address}:{port2use}"
 
     print(
         f"For the email credentials, we will use the following server address: {server_address}\nand the following dashboard url: {dashboard_url}\n"
@@ -250,9 +297,11 @@ def main():
     print_bar()
     print("Setup completed successfully!")
 
-    print_service_instructions_post_setup(
-        server_services_files_dir=server_services_files_dir,
-        server_services_shell_scripts_dir=server_services_shell_scripts_dir,
+    print_service_install_instructions(
+        user=user,
+        group=group,
+        output_dir=output_dir,
+        created_services=created_services,
     )
 
 

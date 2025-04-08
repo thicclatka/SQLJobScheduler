@@ -1,0 +1,14 @@
+{
+  "JOBLISTER": {
+    "description": "Dashboard for job listing and management via fastapi",
+    "script_name": "JobListerDashboard",
+    "port": 8000,
+    "command": "cd $REPO_DIR && cd frontend4JL && yarn install && npm run build && cd $REPO_DIR && uvicorn src.sqljobscheduler.JobListerDashboard:app --host 0.0.0.0 --port {port} --log-level debug"
+  },
+  "JOBRUNNER": {
+    "description": "SQL Job Runner Service for GPU heavy jobs",
+    "script_name": "JobRunner",
+    "port": null,
+    "command": "$PYTHON_EXEC $SCRIPT_PATH"
+  }
+}

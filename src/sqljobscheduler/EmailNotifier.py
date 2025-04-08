@@ -28,6 +28,22 @@ class EmailNotifier:
         self.server_address = credentials["server_address"]
         self.dashboard_url = credentials["dashboard_url"]
 
+    @staticmethod
+    def mask_email(email: str) -> str:
+        """Mask email address"""
+        parts = email.split("@")
+        if len(parts) == 2:
+            username = parts[0]
+            domain = parts[1]
+            if len(username) > 2:
+                masked_username = username[0] + "*" * (len(username) - 2) + username[-1]
+            else:
+                masked_username = username
+            masked_email = f"{masked_username}@{domain}"
+            return masked_email
+        else:
+            return email
+
     def send_test_email(self, recipient: str) -> None:
         """Send test email"""
         subject = "Test Email"
@@ -67,7 +83,9 @@ class EmailNotifier:
                 server.login(self.sender_email, self.sender_password)
                 server.send_message(msg)
 
-            logging.info(f"Email notification sent to {recipient}")
+            masked_recipient = self.mask_email(recipient)
+
+            logging.info(f"Email notification sent to {masked_recipient}")
             return True
 
         except Exception as e:
@@ -188,6 +206,12 @@ class EmailNotifier:
             return re.search(pattern, url) is not None
 
         credentials_manager = CredentialsManager()
+
+        if credentials_manager.credentials_file.exists():
+            print(
+                f"\n***WARNING***\nEmail credentials already exist in {credentials_manager.credentials_file}!\nPlease delete it if you want to generate new ones. Otherwise, skipping for now...\n"
+            )
+            return
 
         print(
             "Utility to generate email credentials for SQL Job Scheduler email notifier"

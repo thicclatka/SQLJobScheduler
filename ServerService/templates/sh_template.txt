@@ -1,0 +1,61 @@
+#!/bin/bash
+# Environment variables
+PYTHON_ENV="{python_env}"
+PYTHON_EXEC="$PYTHON_ENV/bin/python"
+REPO_DIR="{repo_dir}"
+SERVICE_NAME="{service_name}"
+SCRIPT_PATH="$REPO_DIR/src/sqljobscheduler/$SERVICE_NAME.py"
+
+# Log function
+log() {{
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+  logger -t $SERVICE_NAME "$1"
+}}
+
+TMUX=/usr/bin/tmux
+TMUX_SOCKET_DIR="/tmp/tmux-$(id -u)"
+SESSION=$SERVICE_NAME
+mkdir -p "$TMUX_SOCKET_DIR"
+chmod 700 "$TMUX_SOCKET_DIR"
+
+log "Starting $SERVICE_NAME service..."
+TMUX_SERVER_FILE="$TMUX_SOCKET_DIR/$SESSION"
+
+setup_tmux() {{
+  $TMUX -S "$TMUX_SERVER_FILE" new-session -d -s "$SESSION"
+}}
+
+run_service() {{
+  # Send the Python command to the tmux session
+  log "Sending Python command to $SERVICE_NAME session..."
+  $TMUX -S "$TMUX_SERVER_FILE" send-keys -t "$SESSION" "source $PYTHON_ENV/bin/activate" Enter
+  $TMUX -S "$TMUX_SERVER_FILE" send-keys -t "$SESSION" "{command}" Enter
+}}
+
+log "Checking if tmux server is running..."
+# Check if tmux server is running, start if not
+if ! $TMUX -S "$TMUX_SERVER_FILE" list-sessions >/dev/null 2>&1; then
+  log "No tmux server found, starting..."
+  $TMUX -S "$TMUX_SERVER_FILE" start-server
+fi
+
+# Check if the tmux session already exists
+if $TMUX -S "$TMUX_SERVER_FILE" list-sessions | grep -q "$SESSION"; then
+  log "$SERVICE_NAME session already exists"
+else
+  # If the session does not exist, create it
+  log "Creating $SERVICE_NAME session..."
+  setup_tmux
+fi
+
+run_service
+
+# simple check to see if the session is still running
+while true; do
+  if ! $TMUX -S "$TMUX_SERVER_FILE" list-sessions | grep -q "$SESSION"; then
+    log "$SERVICE_NAME session died, restarting..."
+    setup_tmux
+    run_service
+  fi
+  sleep 60
+done

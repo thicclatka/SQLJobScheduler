@@ -3,6 +3,7 @@ from tabulate import tabulate
 from sqljobscheduler.JobManager import JobQueue
 import argparse
 from datetime import datetime, timedelta
+from sqljobscheduler.configSetup import get_queue_db_path
 
 
 def shorten_path(path_str: str, parts: int = 3) -> str:
@@ -17,8 +18,7 @@ def get_basename(path_str: str) -> str:
 
 def main(args):
     # Use the data directory for the database
-    data_dir = Path(__file__).parent.parent.parent / "queueDB"
-    db_path = data_dir / "analysis_jobs.db"
+    db_path = get_queue_db_path()
 
     queue = JobQueue(str(db_path))
     jobs = queue.get_all_jobs()

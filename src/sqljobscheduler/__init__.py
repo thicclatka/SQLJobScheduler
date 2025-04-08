@@ -18,6 +18,7 @@ __all__ = ["LockFileUtils", "JobManager", "JobLister", "EmailNotifier", "JobRunn
 modules_import_as_is = []
 
 if os.getenv("STATIC_IMPORTS", "false").lower() == "true":
+    from .configSetup import *
     from .LockFileUtils import *
     from .JobManager import *
     from .JobLister import *

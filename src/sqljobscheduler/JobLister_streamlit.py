@@ -8,6 +8,7 @@ import altair as alt
 import streamlit as st
 from sqljobscheduler import JobManager
 from sqljobscheduler.LockFileUtils import check_gpu_lock_file, get_current_gpu_job
+from sqljobscheduler import configSetup
 
 
 def create_gpu_usage_chart(jobs_df):
@@ -85,11 +86,11 @@ def display_curr_job_tmux_output():
     st.divider()
     st.subheader("Current Job")
 
-    tmux4WA_dir = Path(__file__).parent.parent.parent / "logs" / "tmux4WA"
+    tmux4WA_dir = configSetup.get_config_dir() / "logs" / "tmux4WA"
     tmux4WA_dir.mkdir(parents=True, exist_ok=True)
     current_job_log = tmux4WA_dir / "current_job"
     if check_gpu_lock_file():
-        lock_info = get_current_gpu_job()
+        lock_info = get_current_gpu_job(verbose=False)
         if lock_info["ctype"] == "sql":
             try:
                 st.write(f"Output for job {lock_info['job_id']:05d}:")
@@ -135,7 +136,7 @@ def get_basename(path_str: str) -> str:
 def gpu_status_sidebar():
     st.sidebar.header("GPU Status")
     if check_gpu_lock_file():
-        lock_info = get_current_gpu_job()
+        lock_info = get_current_gpu_job(verbose=False)
         if lock_info:
             st.sidebar.info("🔴 GPU Currently In Use")
             st.sidebar.write(f"**User:** {lock_info['user']}")

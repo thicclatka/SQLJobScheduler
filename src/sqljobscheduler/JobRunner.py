@@ -6,9 +6,13 @@ from pathlib import Path
 from libtmux import Server
 from datetime import datetime
 from datetime import timedelta
+from typing import Optional, Dict, Any
 from sqljobscheduler import JobManager
-from sqljobscheduler import LockFileUtils
+
+# from sqljobscheduler import LockFileUtils
 from sqljobscheduler import EmailNotifier
+from sqljobscheduler import configSetup
+
 # import argparse
 
 
@@ -24,8 +28,7 @@ class JobRunner:
         self.no_job_count = 0
 
         # Set root directory and log directory
-        self.root_dir = Path(__file__).parent.parent.parent
-        self.log_dir = self.root_dir / log_dir_str
+        self.log_dir = configSetup.get_config_dir() / log_dir_str
         # Create log directory if it doesn't exist
         self.log_dir.mkdir(parents=True, exist_ok=True)
 
@@ -103,7 +106,18 @@ class JobRunner:
             self._init_stats()
             self._setup_logging()
 
-    def run_job(self, job):
+    def _mask_email_in_parameters(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
+        """Mask email addresses in parameters dictionary"""
+        masked_params = parameters.copy()
+        for key, value in masked_params.items():
+            if isinstance(value, str) and "@" in value:
+                # Basic email masking - replace characters with asterisks
+                masked_params[key] = EmailNotifier.mask_email(value)
+        return masked_params
+
+    def run_job(
+        self, job: JobManager.Job
+    ) -> tuple[JobManager.JobStatus, Optional[str]]:
         """Run job in a tmux session and wait for completion"""
         # ZSHRC = str(self.root_dir / "ServerService" / "zshrc4jobrunner")
         # zsh_setup = f"exec zsh -f && source {ZSHRC} && clear"
@@ -120,7 +134,7 @@ class JobRunner:
 
         cmd.append(job.path2python_exec)
         cmd.append(job.programPath)
-        cmd.append("--from_sql")
+        # cmd.append("--from_sql")
 
         # Add parameters
         for key, value in job.parameters.items():
@@ -141,17 +155,17 @@ class JobRunner:
         )
 
         server = Server(socket_path=f"/tmp/tmux-{os.getuid()}/gpuJobRunner")
-        LockFileUtils.gpu_lock_check_timer(duration=600)
+        # LockFileUtils.gpu_lock_check_timer(duration=600)
 
-        if not LockFileUtils.check_gpu_lock_file():
-            print("Creating GPU lock file for this script")
-            LockFileUtils.create_gpu_lock_file(
-                user=job.user,
-                script=job.programPath,
-                pid=int(self.pid),
-                ctype="sql",
-                job_id=job.id,
-            )
+        # if not LockFileUtils.check_gpu_lock_file():
+        #     print("Creating GPU lock file for this script")
+        #     LockFileUtils.create_gpu_lock_file(
+        #         user=job.user,
+        #         script=job.programPath,
+        #         pid=int(self.pid),
+        #         ctype="sql",
+        #         job_id=job.id,
+        #     )
 
         try:
             # Send email notification that job is starting
@@ -204,14 +218,16 @@ class JobRunner:
 
             if tmux_log_file.exists():
                 self.stats["failed"] += 1
-                logging.error(f"Job {job.id} failed. See tmux log: {tmux_log_file}")
+                error_msg = f"Job {job.id} failed. See tmux log: {tmux_log_file}"
+                logging.error(error_msg)
                 self.notifier.notify_job_failed(
                     recipient=job.email_address,
                     job_id=job.id,
                     script=job.programPath,
                     pid=int(self.pid),
-                    error=f"Job failed. See tmux log: {tmux_log_file}",
+                    error=error_msg,
                 )
+                job_status = JobManager.JobStatus.FAILED
             else:
                 self.stats["completed"] += 1
                 logging.info(f"Job {job.id} completed successfully")
@@ -221,16 +237,29 @@ class JobRunner:
                     script=job.programPath,
                     pid=int(self.pid),
                 )
+                job_status = JobManager.JobStatus.COMPLETED
+                error_msg = None
 
         except Exception as e:
-            logging.error(
+            self.stats["failed"] += 1
+            error_msg = (
                 f"Error in handling wrapper for tmux processing for job {job.id}: {e}"
             )
+            logging.error(error_msg)
+            self.notifier.notify_job_failed(
+                recipient=job.email_address,
+                job_id=job.id,
+                script=job.programPath,
+                pid=int(self.pid),
+                error=error_msg,
+            )
+            job_status = JobManager.JobStatus.FAILED
 
         finally:
             self.no_job_count = 0
-            LockFileUtils.remove_gpu_lock_file()
-            logging.info(f"Removed GPU lock file")
+            # LockFileUtils.remove_gpu_lock_file()
+            # logging.info("Removed GPU lock file")
+            return job_status, error_msg
 
     def run_pending_jobs(self) -> None:
         """Process all pending jobs"""
@@ -253,17 +282,27 @@ class JobRunner:
                 try:
                     self.stats["total"] += 1
                     logging.info(f"Processing job {job.id}: {job.programPath}")
-                    logging.info(f"Parameters: {job.parameters}")
+                    masked_params = self._mask_email_in_parameters(job.parameters)
+                    logging.info(f"Parameters: {masked_params}")
 
                     self.queue.update_job_status(job.id, JobManager.JobStatus.RUNNING)
-                    self.run_job(job)
-                    self.queue.update_job_status(job.id, JobManager.JobStatus.COMPLETED)
+                    job_status, error_msg = self.run_job(job)
+                    self.queue.update_job_status(job.id, job_status, error_msg)
 
-                    logging.info(f"Completed job {job.id}")
+                    string_job_note = f"Job {job.id} {job_status.value}"
+                    logging.info(string_job_note)
 
                 except Exception as e:
+                    self.stats["failed"] += 1
                     error_msg = f"Error processing job {job.id}: {str(e)}"
                     logging.error(error_msg)
+                    self.notifier.notify_job_failed(
+                        recipient=job.email_address,
+                        job_id=job.id,
+                        script=job.programPath,
+                        pid=int(self.pid),
+                        error=error_msg,
+                    )
                     self.queue.update_job_status(
                         job.id, JobManager.JobStatus.FAILED, str(e)
                     )
@@ -279,6 +318,16 @@ class JobRunner:
 
         except Exception as e:
             logging.error(f"Critical error in job runner: {str(e)}")
+            job_status = JobManager.JobStatus.FAILED
+            error_msg = f"Critical error in job runner: {str(e)}"
+            self.queue.update_job_status(job.id, JobManager.JobStatus.FAILED, str(e))
+            self.notifier.notify_job_failed(
+                recipient=job.email_address,
+                job_id=job.id,
+                script=job.programPath,
+                pid=int(self.pid),
+                error=error_msg,
+            )
 
     def start(self) -> None:
         """Start the job runner"""
