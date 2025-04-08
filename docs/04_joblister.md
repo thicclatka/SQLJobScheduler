@@ -1,23 +1,23 @@
 # JobLister Dashboard Guide
 
-The JobLister dashboard is a Streamlit-based web interface that provides real-time monitoring and management of GPU jobs.
+The JobLister dashboard is a FastAPI-based web interface that provides real-time monitoring and management of GPU jobs.
 
-![JobLister Dashboard Example](images/jobLister_screenshot_example.png)
+![JobLister Dashboard](images/JobListerDashboard.png)
 
 ## Features
 
 ### 1. GPU Status Panel
 
-Located in the sidebar, shows:
+Located in the sidebar, and can be accessed by clicked the `GPU STATUS` button when it says `IN USE` shows:
 
-- Current GPU availability (🔵 Available or 🔴 In Use)
-- For running jobs:
-    - User running the job
-    - Script name
-    - Start time
-    - Process ID (PID)
-    - Job type (SQL or CLI)
-    - Job ID (for SQL jobs)
+- User running the job
+- Script name
+- Start time
+- Process ID (PID)
+- Job type (SQL or CLI)
+- Job ID (for SQL jobs)
+
+When the GPU says `AVAILABLE` sidebar is not accessible.
 
 ### 2. Job Queue Display
 
@@ -25,8 +25,6 @@ Shows a comprehensive table of jobs with:
 
 - Job ID
 - Program name
-- Python environment path
-- User
 - Email address
 - Status
 - Creation time
@@ -36,12 +34,11 @@ Shows a comprehensive table of jobs with:
 
 #### Filtering Options
 
-- Filter jobs by status (Pending, Running, Completed, Failed)
-- Shows jobs from the current day and all pending jobs
+- Filter jobs by status (Pending, Running, Completed, Failed) or by date
 
-### 3. Real-time Job Output
+### 3. Real-time Output
 
-The dashboard provides real-time output display for currently running jobs:
+The dashboard provides real-time output display for currently running jobs and status of the job runner:
 
 #### Current Job Output
 
@@ -54,22 +51,13 @@ The dashboard provides real-time output display for currently running jobs:
 
 - Displays the latest JobRunner log file
 - Shows service status and any system-level messages
-- Updates automatically with new log entries
+- Can filter logs by date
+- When more than 7 days worth of logs are found, user is provided option to clear all logs older than 7 days
 
-## Usage
-
-### Accessing the Dashboard
+## Accessing the Dashboard
 
 1. Open a web browser
-2. Navigate to `http://<server_ip>:<port>/<app_name>`
-   - Example: `http://localhost:8502/gpujobs`
-
-### Refreshing Data
-
-- Click the "🔄 Refresh" button in the top right
-
-### Monitoring Jobs
-
-1. Check the GPU Status panel for current GPU usage
-2. View the Job Queue table for job status
-3. Monitor real-time output in the Current Job section
+2. Navigate to:
+    - `0.0.0.0:[PORT]` on local machine
+    - `[BROADCAST_IP]:[PORT]` from remote machine
+    - by default the port is set to `8000`, but can be modified in [`/ServerService/templates/app_settings.json`](/ServerService/templates/app_settings.json)
