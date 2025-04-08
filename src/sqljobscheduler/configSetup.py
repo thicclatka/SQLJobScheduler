@@ -15,3 +15,11 @@ def get_queue_db_path():
 
 def get_log_dir():
     return get_config_dir() / "logs"
+
+
+def get_repo_dir(file: str):
+    return Path(file).parent.parent.parent
+
+
+def get_server_service_dir(file: str):
+    return get_repo_dir(file) / "ServerService"
