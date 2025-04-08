@@ -122,6 +122,15 @@ async def get_current_job_output() -> dict:
     tmux4WA_dir.mkdir(parents=True, exist_ok=True)
     current_job_log = tmux4WA_dir / "current_job"
 
+    with open(
+        configSetup.get_server_service_dir(__file__)
+        / "templates"
+        / "app_settings.json",
+        "r",
+    ) as f:
+        app_settings = json.load(f)
+        socket_name = app_settings["JOBRUNNER"]["script_name"]
+
     if LockFileUtils.check_gpu_lock_file():
         lock_info = LockFileUtils.get_current_gpu_job(verbose=False)
         if lock_info["ctype"] == "sql":
@@ -130,7 +139,7 @@ async def get_current_job_output() -> dict:
                     [
                         "/usr/bin/tmux",
                         "-S",
-                        f"/tmp/tmux-{os.getuid()}/gpuJobRunner",
+                        f"/tmp/tmux-{os.getuid()}/{socket_name}",
                         "capture-pane",
                         "-t",
                         f"job_{lock_info['job_id']:05d}",
