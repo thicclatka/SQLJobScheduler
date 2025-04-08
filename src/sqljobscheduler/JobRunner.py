@@ -9,8 +9,7 @@ from datetime import datetime
 from datetime import timedelta
 from typing import Optional, Dict, Any
 from sqljobscheduler import JobManager
-
-# from sqljobscheduler import LockFileUtils
+from sqljobscheduler import LockFileUtils
 from sqljobscheduler import EmailNotifier
 from sqljobscheduler import configSetup
 
@@ -42,9 +41,15 @@ class JobRunner:
         self._init_stats()
 
         # Load app_settings.json to get the socket name
-        with open(configSetup.get_config_dir() / "app_settings.json", "r") as f:
+        with open(
+            configSetup.get_server_service_dir(__file__)
+            / "templates"
+            / "app_settings.json",
+            "r",
+        ) as f:
             app_settings = json.load(f)
-            self.socket_name = app_settings["JOBRUNNER"]["script_name"]
+
+        self.socket_name = app_settings["JOBRUNNER"]["script_name"]
 
     def _init_stats(self) -> None:
         self.stats = {
@@ -161,17 +166,20 @@ class JobRunner:
         )
 
         server = Server(socket_path=f"/tmp/tmux-{os.getuid()}/{self.socket_name}")
-        # LockFileUtils.gpu_lock_check_timer(duration=600)
+        LockFileUtils.gpu_lock_check_timer(duration=600)
 
-        # if not LockFileUtils.check_gpu_lock_file():
-        #     print("Creating GPU lock file for this script")
-        #     LockFileUtils.create_gpu_lock_file(
-        #         user=job.user,
-        #         script=job.programPath,
-        #         pid=int(self.pid),
-        #         ctype="sql",
-        #         job_id=job.id,
-        #     )
+        job_status = JobManager.JobStatus.FAILED
+        error_msg = None
+
+        if not LockFileUtils.check_gpu_lock_file():
+            logging.info("Creating GPU lock file for this run")
+            LockFileUtils.create_gpu_lock_file(
+                user=job.user,
+                script=job.programPath,
+                pid=int(self.pid),
+                ctype="sql",
+                job_id=job.id,
+            )
 
         try:
             # Send email notification that job is starting
@@ -233,7 +241,6 @@ class JobRunner:
                     pid=int(self.pid),
                     error=error_msg,
                 )
-                job_status = JobManager.JobStatus.FAILED
             else:
                 self.stats["completed"] += 1
                 logging.info(f"Job {job.id} completed successfully")
@@ -259,13 +266,13 @@ class JobRunner:
                 pid=int(self.pid),
                 error=error_msg,
             )
-            job_status = JobManager.JobStatus.FAILED
 
         finally:
             self.no_job_count = 0
-            # LockFileUtils.remove_gpu_lock_file()
-            # logging.info("Removed GPU lock file")
-            return job_status, error_msg
+            logging.info("Removing GPU lock file")
+            LockFileUtils.remove_gpu_lock_file()
+
+        return job_status, error_msg
 
     def run_pending_jobs(self) -> None:
         """Process all pending jobs"""
