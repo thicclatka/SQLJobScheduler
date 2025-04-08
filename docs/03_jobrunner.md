@@ -51,4 +51,4 @@ tmux -S /tmp/tmux-$(id -u)/gpuJobRunner attach -t JobRunner
 
 ## Logs
 
-Logs for the runner are stored `logs/job_runner`. If any issues related to tmux operations are run into within the analysis of a job are stored in `logs/tmux`.
+Logs for the runner are stored `~/.sqljobscheduler/logs/job_runner`. If any issues related to tmux operations are run into within the analysis of a job are stored in `~/.sqljobscheduler/logs/tmux`.
