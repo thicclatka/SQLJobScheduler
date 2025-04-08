@@ -2,6 +2,7 @@ import logging
 import time
 import os
 import signal
+import json
 from pathlib import Path
 from libtmux import Server
 from datetime import datetime
@@ -39,6 +40,11 @@ class JobRunner:
         self._setup_logging()
 
         self._init_stats()
+
+        # Load app_settings.json to get the socket name
+        with open(configSetup.get_config_dir() / "app_settings.json", "r") as f:
+            app_settings = json.load(f)
+            self.socket_name = app_settings["JOBRUNNER"]["script_name"]
 
     def _init_stats(self) -> None:
         self.stats = {
@@ -154,7 +160,7 @@ class JobRunner:
             / f"tmux_{job.id:05d}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
         )
 
-        server = Server(socket_path=f"/tmp/tmux-{os.getuid()}/gpuJobRunner")
+        server = Server(socket_path=f"/tmp/tmux-{os.getuid()}/{self.socket_name}")
         # LockFileUtils.gpu_lock_check_timer(duration=600)
 
         # if not LockFileUtils.check_gpu_lock_file():
