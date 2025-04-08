@@ -132,15 +132,15 @@ if __name__ == "__main__":
 ### Best Practices
 
 1. **Always Remove Lock Files**:
-   - Use `try`/`finally` blocks to ensure lock files are removed if not using GPU Lock Context
-   - Call `LockFileUtils.remove_gpu_lock_file()` in the `finally` block
+    - Use `try`/`finally` blocks to ensure lock files are removed if not using GPU Lock Context
+    - Call `LockFileUtils.remove_gpu_lock_file()` in the `finally` block
 
 2. **Check GPU Availability**:
-   - Use `LockFileUtils.check_gpu_lock_file()` before creating new locks
-   - Consider using `gpu_lock_check_timer()` for timeouts
+    - Use `LockFileUtils.check_gpu_lock_file()` before creating new locks
+    - Consider using `gpu_lock_check_timer()` for timeouts
 
 3. **Proper Lock File Creation**:
-   - Include user information
-   - Include script name
-   - Include process ID
-   - Specify client type ("cli" for command line)
+    - Include user information
+    - Include script name
+    - Include process ID
+    - Specify client type ("cli" for command line)
