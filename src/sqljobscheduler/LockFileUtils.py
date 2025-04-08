@@ -97,11 +97,13 @@ def run_script_Wgpu_lock(
     user: str,
     script: str,
     pid: int,
-    ctype: Literal["cli", "sql"] = "sql",
+    ctype: Literal["cli", "sql"] = "cli",
+    logging_bool: bool = True,
     job_id: Optional[str] = None,
 ):
     if not check_gpu_lock_file():
-        logging.info("Creating GPU lock file for this run")
+        if logging_bool:
+            logging.info("Creating GPU lock file for this run")
         create_gpu_lock_file(
             user=user,
             script=script,
@@ -112,7 +114,8 @@ def run_script_Wgpu_lock(
     try:
         yield
     finally:
-        logging.info("Removing GPU lock file")
+        if logging_bool:
+            logging.info("Removing GPU lock file")
         remove_gpu_lock_file()
 
 
