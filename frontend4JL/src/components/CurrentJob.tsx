@@ -21,7 +21,7 @@ export const CurrentJob = ({ job }: CurrentJobProps) => {
   };
 
   return (
-    <Card sx={{ mb: 3 }}>
+    <Card sx={{ mb: 2 }}>
       <CardContent>
         <Box
           display="flex"
@@ -37,11 +37,11 @@ export const CurrentJob = ({ job }: CurrentJobProps) => {
         <Paper
           sx={{
             p: 2,
-            maxHeight: 300,
+            maxHeight: "400px",
             overflow: "auto",
             bgcolor: "background.paper",
             fontFamily: "monospace",
-            fontSize: "0.875rem",
+            fontSize: "0.8rem",
             whiteSpace: "pre-wrap",
           }}
         >

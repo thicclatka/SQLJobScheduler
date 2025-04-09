@@ -105,6 +105,8 @@ const TableCell_withTooltip = ({
     }
   })();
 
+  const shouldShowTooltip = job_text.length > 30;
+
   return (
     <TableCell
       width={width}
@@ -116,28 +118,42 @@ const TableCell_withTooltip = ({
         position: "relative",
       }}
     >
-      <Tooltip
-        title={
+      {shouldShowTooltip ? (
+        <Tooltip
+          title={
+            <Box
+              component="pre"
+              sx={{
+                margin: 0,
+                whiteSpace: "pre-wrap",
+                fontFamily: "monospace",
+                fontSize: "0.8rem",
+              }}
+            >
+              {parsed_job_text}
+            </Box>
+          }
+          placement="top"
+          arrow
+          enterDelay={500}
+        >
           <Box
-            component="pre"
+            component="span"
             sx={{
-              margin: 0,
-              whiteSpace: "pre-wrap",
-              fontFamily: "monospace",
-              fontSize: "0.8rem",
+              cursor: "help",
+              display: "block",
+              width: "100%",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             }}
           >
-            {parsed_job_text}
+            {job_text}
           </Box>
-        }
-        placement="top"
-        arrow
-        enterDelay={500}
-      >
+        </Tooltip>
+      ) : (
         <Box
           component="span"
           sx={{
-            cursor: "help",
             display: "block",
             width: "100%",
             overflow: "hidden",
@@ -146,7 +162,7 @@ const TableCell_withTooltip = ({
         >
           {job_text}
         </Box>
-      </Tooltip>
+      )}
     </TableCell>
   );
 };
