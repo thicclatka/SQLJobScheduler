@@ -198,7 +198,9 @@ const MainContent = ({
         </Box>
       </Box>
       <Box>
-        <JobsTable jobs={jobs} />
+        <JobsTable
+          jobs={Array.isArray(jobs) ? jobs : Object.values(jobs).flat()}
+        />
       </Box>
       <Box
         sx={{
