@@ -110,6 +110,7 @@ yarn.lock
 ### IDE/Editor ###
 # VSCode
 .vscode/*
+!/vscode/settings.json
 !.vscode/extensions.json
 .history/
 *.vsix
