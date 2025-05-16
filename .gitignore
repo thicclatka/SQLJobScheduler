@@ -6,6 +6,7 @@ shell_scripts/
 CNMF_params/
 *.service
 *.db
+.dist
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -110,7 +111,7 @@ yarn.lock
 ### IDE/Editor ###
 # VSCode
 .vscode/*
-!/vscode/settings.json
+!.vscode/settings.json
 !.vscode/extensions.json
 .history/
 *.vsix
