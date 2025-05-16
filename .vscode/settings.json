@@ -1,0 +1,6 @@
+{
+  "workbench.colorTheme": "paddy-citadel-upright",
+  "markdownlint.config": {
+    "MD007": { "indent": 4 }
+  }
+}
