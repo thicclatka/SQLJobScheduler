@@ -61,4 +61,4 @@ The dashboard provides real-time output display for status of the job runner and
 2. Navigate to:
     - `0.0.0.0:[PORT]` on local machine
     - `[BROADCAST_IP]:[PORT]` from remote machine
-    - by default the port is set to `8000`, but can be modified in [`/ServerService/templates/app_settings.json`](/ServerService/templates/app_settings.json)
+    - by default the port is set to `8000`, but can be modified in [`/ServerService/templates/app_settings.json`](https://github.com/thicclatka/CLAH_IA/blob/main/SystemdServices/app_settings.json)

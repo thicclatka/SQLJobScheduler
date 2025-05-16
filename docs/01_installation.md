@@ -81,8 +81,8 @@ sudo systemctl status [SERVICE-NAME]
 Access the web dashboard:
 
 - Open a web browser
-- Navigate to `http://<server_ip>:<port>/<app_name>`
-    - example: `http://localhost:8502/gpujobs`
+- Navigate to `http://<server_ip>:<port`
+    - example: `http://localhost:8000`
 
 ## Uninstallation
 

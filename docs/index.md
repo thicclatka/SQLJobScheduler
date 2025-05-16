@@ -10,7 +10,7 @@ A SQL-based job scheduler system designed to manage GPU-intensive Python jobs fo
     - Handles GPU resource allocation
     - Provides email notifications for job status
     - Manages conda/Python environments for different jobs
-- Web Dashboard: A Streamlit-based interface (`JobLister_streamlit.py`) that displays:
+- Web Dashboard: A FastAPI-based interface that displays:
     - Current GPU status
     - Job queue with filtering options
     - Real-time job output
