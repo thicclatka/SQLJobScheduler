@@ -1,9 +1,11 @@
-from pathlib import Path
-from tabulate import tabulate
-from sqljobscheduler.JobManager import JobQueue
 import argparse
 from datetime import datetime, timedelta
+from pathlib import Path
+
+from tabulate import tabulate
+
 from sqljobscheduler.configSetup import get_queue_db_path
+from sqljobscheduler.JobManager import JobQueue
 
 
 def shorten_path(path_str: str, parts: int = 3) -> str:

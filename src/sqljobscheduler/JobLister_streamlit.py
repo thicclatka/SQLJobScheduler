@@ -1,14 +1,15 @@
-import os
 import base64
+import os
 import subprocess
 from datetime import datetime
 from pathlib import Path
-import pandas as pd
+
 import altair as alt
+import pandas as pd
 import streamlit as st
-from sqljobscheduler import JobManager
+
+from sqljobscheduler import JobManager, configSetup
 from sqljobscheduler.LockFileUtils import check_gpu_lock_file, get_current_gpu_job
-from sqljobscheduler import configSetup
 
 
 def create_gpu_usage_chart(jobs_df):

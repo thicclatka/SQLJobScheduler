@@ -2,8 +2,9 @@
 SQL Job Scheduler - A system for managing GPU-intensive Python jobs
 """
 
-import tomli
 import os
+
+import tomli
 
 try:
     with open("pyproject.toml", "rb") as f:
@@ -19,11 +20,11 @@ modules_import_as_is = []
 
 if os.getenv("STATIC_IMPORTS", "false").lower() == "true":
     from .configSetup import *
-    from .LockFileUtils import *
-    from .JobManager import *
-    from .JobLister import *
     from .EmailNotifier import *
+    from .JobLister import *
+    from .JobManager import *
     from .JobRunner import *
+    from .LockFileUtils import *
 else:
     # import modules accordingly
     for module in __all__:

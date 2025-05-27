@@ -1,13 +1,15 @@
+import json
 import os
 import shutil
+import sqlite3
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-import sqlite3
-from typing import Optional, Dict, List
-import json
 from pathlib import Path
+from typing import Dict, List, Optional
+
 import psutil
+
 from sqljobscheduler.configSetup import get_queue_db_path
 
 
@@ -236,7 +238,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--clearJobs",
-        default=True,
+        default=False,
         help="Clear all jobs from the database",
         type=bool,
     )

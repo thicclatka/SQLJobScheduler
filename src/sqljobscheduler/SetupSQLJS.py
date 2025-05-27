@@ -1,13 +1,14 @@
-import subprocess
-import json
-import pwd
 import grp
-import sys
+import json
 import os
+import pwd
 import socket
+import subprocess
+import sys
 from pathlib import Path
-from sqljobscheduler.EmailNotifier import EmailNotifier
+
 from sqljobscheduler import configSetup
+from sqljobscheduler.EmailNotifier import EmailNotifier
 
 
 def print_bar() -> None:

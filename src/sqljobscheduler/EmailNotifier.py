@@ -1,16 +1,17 @@
-import os
-from textwrap import dedent
-import hashlib
-from datetime import datetime
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import logging
-import json
-from pathlib import Path
-import getpass
-from cryptography.fernet import Fernet
 import base64
+import getpass
+import hashlib
+import json
+import logging
+import os
+import smtplib
+from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from pathlib import Path
+from textwrap import dedent
+
+from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 

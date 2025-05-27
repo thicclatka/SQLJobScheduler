@@ -1,18 +1,16 @@
 import json
 import os
 import subprocess
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional
+
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from sqljobscheduler import JobManager
-from sqljobscheduler import LockFileUtils
-from sqljobscheduler import configSetup
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+
+from sqljobscheduler import JobManager, LockFileUtils, configSetup
 
 app = FastAPI(title="GPU Job Scheduler Dashboard")
 

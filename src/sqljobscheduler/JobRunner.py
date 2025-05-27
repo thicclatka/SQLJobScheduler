@@ -1,17 +1,15 @@
+import json
 import logging
-import time
 import os
 import signal
-import json
+import time
+from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Any, Dict, Optional
+
 from libtmux import Server
-from datetime import datetime
-from datetime import timedelta
-from typing import Optional, Dict, Any
-from sqljobscheduler import JobManager
-from sqljobscheduler import LockFileUtils
-from sqljobscheduler import EmailNotifier
-from sqljobscheduler import configSetup
+
+from sqljobscheduler import EmailNotifier, JobManager, LockFileUtils, configSetup
 
 # import argparse
 
