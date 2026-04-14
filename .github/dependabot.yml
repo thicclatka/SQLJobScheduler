@@ -9,8 +9,6 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-    reviewers:
-      - "thicclatka"
     assignees:
       - "thicclatka"
     labels:
