@@ -4,7 +4,7 @@ Can technically work as a library on Windows, Mac, or Linux. If you want to use 
 
 ## Prerequisites
 
-- Python 3.9 or higher
+- Python 3.11 or higher
 - [TMUX](https://github.com/tmux/tmux/wiki) - For managing terminal sessions
 - NVIDIA GPU (recommended for GPU-accelerated jobs)
 - Systemd (for Linux service management)
@@ -12,7 +12,7 @@ Can technically work as a library on Windows, Mac, or Linux. If you want to use 
 
 ## Installation
 
-For best results as a standalone application, it is recommended to install in a virtual environment. It is recommended to use ***[uv](https://github.com/astral-sh/uv)*** as environment and package manager for Python. Regardless, can also be installed as a package to be used in other projects.
+For best results as a standalone application, it is recommended to install in a virtual environment. It is recommended to use **_[uv](https://github.com/astral-sh/uv)_** as environment and package manager for Python. Regardless, can also be installed as a package to be used in other projects.
 
 ```bash
 # Clone repository
@@ -75,14 +75,14 @@ sudo systemctl start jobLister
 To verify the installation:
 
 ```bash
-sudo systemctl status [SERVICE-NAME] 
+sudo systemctl status [SERVICE-NAME]
 ```
 
 Access the web dashboard:
 
 - Open a web browser
 - Navigate to `http://<server_ip>:<port`
-    - example: `http://localhost:8000`
+  - example: `http://localhost:8000`
 
 ## Uninstallation
 
