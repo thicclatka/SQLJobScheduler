@@ -16,7 +16,7 @@ tomli
 
 # Documentation
 mkdocs-material>=9.5.0
-mkdocs>=1.5.0
+mkdocs>=1.6.1
 
 # Development
 pytest>=8.0.0
