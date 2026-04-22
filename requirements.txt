@@ -15,7 +15,7 @@ psutil>=5.9.0
 tomli
 
 # Documentation
-mkdocs-material>=9.5.0
+mkdocs-material>=9.7.6
 mkdocs>=1.6.1
 
 # Development
